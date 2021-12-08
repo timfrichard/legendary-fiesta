@@ -1,0 +1,15 @@
+version: '3.1'
+services:
+  db:
+    image: postgres
+    restart: always
+    container_name: spring-batch-demo-postgres
+    volumes:
+      - .:/docker-entrypoint-initdb.d
+    ports:
+      - 8085:5432
+    environment:
+      POSTGRES_PASSWORD: mysecret
+      POSTGRES_USER: postgres
+      PGDATA: /var/lib/postgresql/pgdata
+      POSTGRES_DB: spring_batch_demo_db
