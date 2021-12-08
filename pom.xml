@@ -11,7 +11,7 @@
 	<groupId>com.tim.example</groupId>
 	<artifactId>spring-batch-excel</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>spring-batch-excel</name>
+	<name>spring-batch-demo</name>
 	<description>Demo project for Spring Batch Excel Processing</description>
 	<properties>
 		<java.version>1.8</java.version>
