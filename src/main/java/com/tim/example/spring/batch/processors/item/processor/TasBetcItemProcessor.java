@@ -25,7 +25,7 @@ public class TasBetcItemProcessor implements ItemProcessor<TasBetc, TasBetc> {
 
         ExecutionContext stepContext = this.stepExecution.getExecutionContext();
         log.info("Job Id: " + this.stepExecution.getJobExecutionId());
-        tasBetc.setJobExecutionId(this.stepExecution.getJobExecutionId());
+//        tasBetc.setJobExecutionId(this.stepExecution.getJobExecutionId());
         return tasBetc;
     }
 

@@ -42,17 +42,20 @@ public class BatchConfiguration {
 
     private final TasBetcRepository tasBetcRepository;
 
+    private final TasBetcItemWriter tasBetcItemWriter;
+
     @Autowired
     public BatchConfiguration(
             final @Value("${spring.batch.chunkSize}") int chunkSize,
             final @Value("${file.csv.headers:}") String[] fileHeaders, final JobBuilderFactory jobBuilderFactory,
             final StepBuilderFactory stepBuilderFactory,
-            final TasBetcRepository tasBetcRepository, TasBetcItemWriter tasBetcItemWriter) {
+            final TasBetcRepository tasBetcRepository, TasBetcItemWriter tasBetcItemWriter, TasBetcItemWriter tasBetcItemWriter1) {
         this.chunkSize = chunkSize;
         this.fileHeaders = fileHeaders;
         this.jobBuilderFactory = jobBuilderFactory;
         this.stepBuilderFactory = stepBuilderFactory;
         this.tasBetcRepository = tasBetcRepository;
+        this.tasBetcItemWriter = tasBetcItemWriter1;
     }
 
     /**
@@ -143,7 +146,7 @@ public class BatchConfiguration {
                 /* The item processor hooked in just in case any massaging of the data is needed before saving */
                 .processor(tasBetcItemProcessor())
                 /* setting the spring data repo as the writer */
-                .writer(writer)
+                .writer(tasBetcItemWriter)
                 /* setting the async task executor for speed. */
                 .taskExecutor(taskExecutor)
                 /* Building the step */

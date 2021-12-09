@@ -12,6 +12,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -117,8 +119,9 @@ public class TasBetc {
     @Column(name = "PROCESS_DATETIME")
     private Instant processDateTime;
 
-    @Column(name = "FK_JOB_EXECUTION_ID")
-    private Long jobExecutionId;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "FK_JOB_HEADER_ID", nullable = false)
+    private JobHeader jobHeader;
 
     @Transient
     private String blankComma;

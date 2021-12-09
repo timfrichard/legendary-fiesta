@@ -27,7 +27,8 @@ public class JobCompletionNotificationListener extends JobExecutionListenerSuppo
 		if(jobExecution.getStatus() == BatchStatus.COMPLETED) {
 			log.info("!!! JOB FINISHED! Time to verify the results");
 
-			jdbcTemplate.query("SELECT GWA_TAS, BETC FROM TAS_BETC WHERE FK_JOB_EXECUTION_ID=" + jobExecution.getJobId(),
+			jdbcTemplate.query("SELECT GWA_TAS, BETC FROM TAS_BETC WHERE FK_JOB_HEADER_ID="
+							+ jobExecution.getJobParameters().getLong("jobHeaderId"),
 				(rs, row) -> TasBetc.builder().gwaTas(rs.getString(1))
 						.betc(rs.getString(2)).build()
 			).forEach(tasbetc -> log.info("Found <" + tasbetc + "> in the database."));

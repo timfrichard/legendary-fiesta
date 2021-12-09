@@ -18,4 +18,7 @@ mvn spring-boot:run
 SP - ATA - AID - BPOA - EPOA - A - MAIN - SUB - Admin Bureau - GWA TAS - Agency Name - BETC - BETC Name - Effective Date - Suspend Date - IsCredit - Adj BETC - STAR TAS - STAR Dep Reg - STAR Dep Xfer - STAR Main Acct - Txn Type - Acct Type - Fund Type - Fund Type Description
 ```
 
-Test
+### Docker Composer Up Command
+```
+docker-compose up -d
+```
