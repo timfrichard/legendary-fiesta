@@ -3,9 +3,7 @@ package com.tim.example.spring.batch.model.entities;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,10 +19,8 @@ import java.time.Instant;
 
 @Builder
 @Data
-@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
 @Entity
 @Table(name = "tas_betc")
 public class TasBetc {
@@ -120,8 +116,8 @@ public class TasBetc {
     private Instant processDateTime;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "FK_JOB_HEADER_ID", nullable = false)
-    private JobHeader jobHeader;
+    @JoinColumn(name = "FK_FILE_UPLOAD_JOB_HEADER_ID", nullable = false)
+    private FileUploadJobHeader fileUploadJobHeader;
 
     @Transient
     private String blankComma;

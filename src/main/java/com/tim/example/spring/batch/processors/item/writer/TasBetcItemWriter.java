@@ -1,7 +1,7 @@
 package com.tim.example.spring.batch.processors.item.writer;
 
 import com.tim.example.spring.batch.model.entities.TasBetc;
-import com.tim.example.spring.batch.repository.JobHeaderRepository;
+import com.tim.example.spring.batch.repository.FileUploadJobHeaderRepository;
 import com.tim.example.spring.batch.repository.TasBetcRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepExecution;
@@ -23,13 +23,13 @@ public class TasBetcItemWriter implements ItemWriter<TasBetc> {
 
     private StepExecution stepExecution;
 
-    private final JobHeaderRepository jobHeaderRepository;
+    private final FileUploadJobHeaderRepository fileUploadJobHeaderRepository;
 
     private final TasBetcRepository tasBetcRepository;
 
     @Autowired
-    public TasBetcItemWriter(JobHeaderRepository jobHeaderRepository, TasBetcRepository tasBetcRepository) {
-        this.jobHeaderRepository = jobHeaderRepository;
+    public TasBetcItemWriter(FileUploadJobHeaderRepository fileUploadJobHeaderRepository, TasBetcRepository tasBetcRepository) {
+        this.fileUploadJobHeaderRepository = fileUploadJobHeaderRepository;
         this.tasBetcRepository = tasBetcRepository;
     }
 
@@ -40,7 +40,7 @@ public class TasBetcItemWriter implements ItemWriter<TasBetc> {
         log.info("Job Id: " + this.stepExecution.getJobExecutionId());
 
         tasBetcs.forEach(tasBetc -> {
-            tasBetc.setJobHeader(jobHeaderRepository.findById(
+            tasBetc.setFileUploadJobHeader(fileUploadJobHeaderRepository.findById(
                             this.stepExecution.getJobExecution().getJobParameters().getLong("jobHeaderId"))
                     .get());
         });

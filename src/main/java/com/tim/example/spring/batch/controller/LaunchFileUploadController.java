@@ -1,8 +1,7 @@
 package com.tim.example.spring.batch.controller;
 
-import com.tim.example.spring.batch.model.entities.JobHeader;
 import com.tim.example.spring.batch.model.entities.TasBetc;
-import com.tim.example.spring.batch.repository.JobHeaderRepository;
+import com.tim.example.spring.batch.repository.FileUploadJobHeaderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -29,7 +28,7 @@ public class LaunchFileUploadController {
 
     private final Job importTasBetcJob;
 
-    private final JobHeaderRepository jobHeaderRepository;
+    private final FileUploadJobHeaderRepository fileUploadJobHeaderRepository;
 
     private final JobLauncher jobLauncher;
 
@@ -39,11 +38,11 @@ public class LaunchFileUploadController {
 
     @Autowired
     public LaunchFileUploadController(JobLauncher jobLauncher, Job importTasBetcJob,
-                                      JobHeaderRepository jobHeaderRepository, JobRepository jobRepository,
+                                      FileUploadJobHeaderRepository fileUploadJobHeaderRepository, JobRepository jobRepository,
                                       FlatFileItemReader tasbetcItemReader) {
         this.jobLauncher = jobLauncher;
         this.importTasBetcJob = importTasBetcJob;
-        this.jobHeaderRepository = jobHeaderRepository;
+        this.fileUploadJobHeaderRepository = fileUploadJobHeaderRepository;
         this.jobRepository = jobRepository;
         this.tasbetcItemReader = tasbetcItemReader;
     }
@@ -53,11 +52,11 @@ public class LaunchFileUploadController {
             JobParametersInvalidException, JobRestartException {
 
         /* Creating a JobHeader and placing it in the Jobs parameters for use in the items writer */
-        final JobHeader jobHeader = jobHeaderRepository.save(JobHeader.builder().build());
+        final com.tim.example.spring.batch.model.entities.FileUploadJobHeader fileUploadJobHeader = this.fileUploadJobHeaderRepository.save(com.tim.example.spring.batch.model.entities.FileUploadJobHeader.builder().build());
 
         final JobParameters params = new JobParametersBuilder()
                 .addString("jobStartValue", String.valueOf(System.currentTimeMillis()))
-                .addLong("jobHeaderId", jobHeader.getId())
+                .addLong("jobHeaderId", fileUploadJobHeader.getId())
                 .toJobParameters();
 
         log.info("Setting File here");
@@ -67,8 +66,8 @@ public class LaunchFileUploadController {
         final JobExecution jobExecution = jobLauncher.run(importTasBetcJob, params);
 
         log.info("Job Id: " + jobExecution.getJobId());
-        jobHeader.setJobExecutionId(jobExecution.getJobId());
-        jobHeaderRepository.save(jobHeader);
+        fileUploadJobHeader.setJobExecutionId(jobExecution.getJobId());
+        this.fileUploadJobHeaderRepository.save(fileUploadJobHeader);
     }
 
 }
