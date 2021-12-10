@@ -107,19 +107,16 @@ public class BatchFileUploadConfiguration {
      * This method is used to setup the Batch writer to persist the data that is read from the file.  The writer
      * needs some type of reader and a processor to work.
      *
-     * @param taskExecutor
      * @return Step
      */
     @Bean
-    public Step writeTasBetcStep(final TaskExecutor taskExecutor) {
+    public Step writeTasBetcStep() {
 
         return stepBuilderFactory.get("stepTasBetcWriter")
                 /* Chunk value and this is from a property in the yml file */
                 .<TasBetc, TasBetc>chunk(chunkSize)
                 /* Reader from above FlatFileItemReader */
                 .reader(synchronizedItemStreamReader())
-                /* setting the async task executor for speed. */
-                .taskExecutor(taskExecutor)
                 .listener(itemReadListenerFailureLogger)
                 /* Adding fault tolerance in order to configure skipping */
                 .faultTolerant()
@@ -131,6 +128,8 @@ public class BatchFileUploadConfiguration {
                 .processor(tasBetcItemProcessor())
                 /* setting the spring data repo as the writer */
                 .writer(tasBetcItemWriter)
+                /* setting the async task executor for speed. */
+                .taskExecutor(taskExecutor())
                 /* Building the step */
                 .build();
     }
