@@ -39,6 +39,9 @@ public class FileUploadJobHeader extends BaseEntity{
     @Column(name = "READ_COUNT")
     private Integer readCount;
 
+    @Column(name = "STATUS")
+    private String status;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "fileUploadJobHeader")
     private Set<TasBetc> tasbetcs;
 

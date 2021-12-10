@@ -52,7 +52,7 @@ spring:
 
 spring:
   profiles: postgresql-profile
-  _comment: "This will be our PostgreSQL profile"
+  _comment: "This will be a Docker PostgreSQL Database"
   datasource:
     driver-class-name: "org.postgresql.Driver"
     url: "jdbc:postgresql://localhost:8085/spring_batch_demo_db"
@@ -65,6 +65,37 @@ spring:
     mixed: true
     password: "mysecret"
     url: "jdbc:postgresql://localhost:8085/spring_batch_demo_db"
+    user: "DB_OWNER_USER"
+  jpa:
+    hibernate:
+      ddl-auto: none
+    database-platform: org.hibernate.dialect.PostgreSQL95Dialect
+    properties:
+      hibernate:
+        dialect: "org.hibernate.dialect.PostgreSQL95Dialect"
+        jdbc:
+          lob:
+            non_contextual_creation: true
+        temp:
+          use_jdbc_metadata_defaults: false
+    open-in-view: true
+
+---
+spring:
+  profiles: localinstall-postgresql-profile
+  _comment: "This will be a local installed PostgreSQL Database"
+  datasource:
+    driver-class-name: "org.postgresql.Driver"
+    url: "jdbc:postgresql://localhost:5432/spring_batch_demo_db"
+    username: "SPRINGBATCH_APP_USER"
+    password: "mynonsecretpassw0rd"
+    platform: "postgresql"
+    _comment: "I hate Spring Boot you can't setup your own Datasource Config because it creates this Hikari datasource"
+  flyway:
+    locations: "classpath:db/migration/flyway/postgresql/common,classpath:db/migration/flyway/postgresql/bootable-data"
+    mixed: true
+    password: "mysecret"
+    url: "jdbc:postgresql://localhost:5432/spring_batch_demo_db"
     user: "DB_OWNER_USER"
   jpa:
     hibernate:

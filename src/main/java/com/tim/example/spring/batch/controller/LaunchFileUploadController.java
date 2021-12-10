@@ -1,5 +1,6 @@
 package com.tim.example.spring.batch.controller;
 
+import com.tim.example.spring.batch.model.entities.FileUploadJobHeader;
 import com.tim.example.spring.batch.model.entities.TasBetc;
 import com.tim.example.spring.batch.repository.FileUploadJobHeaderRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -52,7 +53,8 @@ public class LaunchFileUploadController {
             JobParametersInvalidException, JobRestartException {
 
         /* Creating a JobHeader and placing it in the Jobs parameters for use in the items writer */
-        final com.tim.example.spring.batch.model.entities.FileUploadJobHeader fileUploadJobHeader = this.fileUploadJobHeaderRepository.save(com.tim.example.spring.batch.model.entities.FileUploadJobHeader.builder().build());
+        final com.tim.example.spring.batch.model.entities.FileUploadJobHeader fileUploadJobHeader =
+                fileUploadJobHeaderRepository.save(FileUploadJobHeader.builder().build());
 
         final JobParameters params = new JobParametersBuilder()
                 .addString("jobStartValue", String.valueOf(System.currentTimeMillis()))
