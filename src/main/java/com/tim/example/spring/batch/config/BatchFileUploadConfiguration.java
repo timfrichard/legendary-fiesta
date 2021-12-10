@@ -1,10 +1,12 @@
 package com.tim.example.spring.batch.config;
 
 import com.tim.example.spring.batch.model.entities.TasBetc;
+import com.tim.example.spring.batch.processors.item.listeners.ItemReadListenerFailureLogger;
 import com.tim.example.spring.batch.processors.item.processor.TasBetcItemProcessor;
 import com.tim.example.spring.batch.processors.item.writer.TasBetcItemWriter;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineMapper;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
@@ -12,7 +14,10 @@ import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.file.transform.FlatFileFormatException;
 import org.springframework.batch.item.file.transform.LineTokenizer;
+import org.springframework.batch.item.support.SynchronizedItemStreamReader;
+import org.springframework.batch.item.support.builder.SynchronizedItemStreamReaderBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,16 +32,19 @@ public class BatchFileUploadConfiguration {
 
     private final String[] fileHeaders;
 
+    private final ItemReadListenerFailureLogger itemReadListenerFailureLogger;
+
     private final StepBuilderFactory stepBuilderFactory;
 
     private final TasBetcItemWriter tasBetcItemWriter;
 
     public BatchFileUploadConfiguration(final @Value("${spring.batch.chunkSize}") int chunkSize,
                                         final @Value("${file.csv.headers:}") String[] fileHeaders,
-                                        StepBuilderFactory stepBuilderFactory,
+                                        ItemReadListenerFailureLogger itemReadListenerFailureLogger, StepBuilderFactory stepBuilderFactory,
                                         TasBetcItemWriter tasBetcItemWriter) {
         this.chunkSize = chunkSize;
         this.fileHeaders = fileHeaders;
+        this.itemReadListenerFailureLogger = itemReadListenerFailureLogger;
         this.stepBuilderFactory = stepBuilderFactory;
         this.tasBetcItemWriter = tasBetcItemWriter;
     }
@@ -63,6 +71,13 @@ public class BatchFileUploadConfiguration {
         reader.setLinesToSkip(2);
 
         return reader;
+    }
+
+    @Bean
+    public SynchronizedItemStreamReader<TasBetc> synchronizedItemStreamReader(){
+        return new SynchronizedItemStreamReaderBuilder<TasBetc>()
+                .delegate(reader())
+                .build();
     }
 
     /**
@@ -102,13 +117,20 @@ public class BatchFileUploadConfiguration {
                 /* Chunk value and this is from a property in the yml file */
                 .<TasBetc, TasBetc>chunk(chunkSize)
                 /* Reader from above FlatFileItemReader */
-                .reader(reader())
+                .reader(synchronizedItemStreamReader())
+                /* setting the async task executor for speed. */
+                .taskExecutor(taskExecutor)
+                .listener(itemReadListenerFailureLogger)
+                /* Adding fault tolerance in order to configure skipping */
+                .faultTolerant()
+                /* Skip Limit setting */
+                .skipLimit(2)
+                .skip(FlatFileFormatException.class)
+                .skip(ParseException.class)
                 /* The item processor hooked in just in case any massaging of the data is needed before saving */
                 .processor(tasBetcItemProcessor())
                 /* setting the spring data repo as the writer */
                 .writer(tasBetcItemWriter)
-                /* setting the async task executor for speed. */
-                .taskExecutor(taskExecutor)
                 /* Building the step */
                 .build();
     }
