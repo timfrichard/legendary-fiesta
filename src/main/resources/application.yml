@@ -16,6 +16,8 @@ server:
 spring:
   batch:
     initialize-schema: never
+    job:
+      enabled: false
     chunkSize: 25
   datasource:
     driver-class-name: org.h2.Driver

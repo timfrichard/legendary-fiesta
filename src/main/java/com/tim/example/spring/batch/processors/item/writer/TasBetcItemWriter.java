@@ -40,8 +40,9 @@ public class TasBetcItemWriter implements ItemWriter<TasBetc> {
         log.info("Job Id: " + this.stepExecution.getJobExecutionId());
 
         tasBetcs.forEach(tasBetc -> {
+            final String jobHeaderId = this.stepExecution.getJobExecution().getJobParameters().getString("jobHeaderId");
             tasBetc.setFileUploadJobHeader(fileUploadJobHeaderRepository.findById(
-                            this.stepExecution.getJobExecution().getJobParameters().getLong("jobHeaderId"))
+                            Long.valueOf(jobHeaderId))
                     .get());
         });
 

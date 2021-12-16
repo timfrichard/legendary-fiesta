@@ -6,6 +6,7 @@ import com.tim.example.spring.batch.processors.item.processor.TasBetcItemProcess
 import com.tim.example.spring.batch.processors.item.writer.TasBetcItemWriter;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineMapper;
@@ -21,7 +22,6 @@ import org.springframework.batch.item.support.builder.SynchronizedItemStreamRead
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 
@@ -54,15 +54,17 @@ public class BatchFileUploadConfiguration {
      * which is being read is comma delimited.  There are two lines at the top of the file which will be skipped
      * down in the linemapper code.  The feature for comments should already work by using the # pound sign.
      *
-     * @return FlatFileItemReader
+     * @return
      */
     @Bean
+    @StepScope
     public FlatFileItemReader<TasBetc> reader() {
 
         FlatFileItemReader<TasBetc> reader = new FlatFileItemReaderBuilder<TasBetc>()
                 .name("tasbetcItemReader")
                 /* A blank resource so there are no exceptions when the service comes up */
-                .resource(new ClassPathResource("blank_all_tas_betc.csv"))
+                /* Removing the blank resource set spring.batch.job.enabled=false in application.yml */
+                //.resource(new ClassPathResource("blank_all_tas_betc.csv"))
                 /* Creation of the Line Mapper to handle file reading see methods below */
                 .lineMapper(createLineMapper())
                 /* Build the FlatFileItemReader */
@@ -74,6 +76,7 @@ public class BatchFileUploadConfiguration {
     }
 
     @Bean
+    @StepScope
     public SynchronizedItemStreamReader<TasBetc> synchronizedItemStreamReader(){
         return new SynchronizedItemStreamReaderBuilder<TasBetc>()
                 .delegate(reader())

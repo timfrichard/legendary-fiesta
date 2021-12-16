@@ -35,7 +35,7 @@ public class JobCompletionNotificationListener extends JobExecutionListenerSuppo
 
             log.info("!!! JOB FINISHED! Time to verify the results");
 
-            Long jobHeaderId = jobExecution.getJobParameters().getLong("jobHeaderId");
+            Long jobHeaderId = Long.valueOf(jobExecution.getJobParameters().getString("jobHeaderId"));
             /* This would be null when it is not run by the jobLauncher */
             if (jobHeaderId != null) {
                 FileUploadJobHeader fileUploadJobHeader = fileUploadJobHeaderRepository
