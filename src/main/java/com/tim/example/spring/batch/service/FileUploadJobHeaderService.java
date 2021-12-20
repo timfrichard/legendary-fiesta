@@ -16,7 +16,10 @@ public class FileUploadJobHeaderService {
     }
 
     public FileUploadJobHeader getReadyToProcessFile() {
-
         return fileUploadJobHeaderRepository.getReadyToProcessFile();
+    }
+
+    public FileUploadJobHeader saveFileUploadJobHeader(final FileUploadJobHeader fileUploadJobHeader){
+        return fileUploadJobHeaderRepository.save(fileUploadJobHeader);
     }
 }

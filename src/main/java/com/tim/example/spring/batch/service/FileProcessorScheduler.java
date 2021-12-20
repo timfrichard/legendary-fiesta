@@ -44,18 +44,23 @@ public class FileProcessorScheduler {
     @Scheduled(cron="*/10 * * * * *")
     public void launchFileUploadJob() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException,
             JobParametersInvalidException, JobRestartException {
-        final JobParameters params = new JobParametersBuilder()
-                .addString("jobStartValue", String.valueOf(System.currentTimeMillis()))
-                .toJobParameters();
+        log.info("Start - launchFileUploadJob()");
 
-        log.info("Setting File here");
         FileUploadJobHeader fileUploadJobHeader = fileUploadJobHeaderService.getReadyToProcessFile();
         if (fileUploadJobHeader != null) {
+            final JobParameters params = new JobParametersBuilder()
+                    .addString("jobStartValue", String.valueOf(System.currentTimeMillis()))
+                    .addLong("jobHeaderId", fileUploadJobHeader.getId())
+                    .toJobParameters();
+
+            log.info("Setting File here");
             log.info(fileUploadJobHeader.toString());
             tasBetcFlatFileReader.setResource(storageService.loadAsResource(fileUploadJobHeader.getFileName()));
             log.info("Starting the batch job");
             final JobExecution jobExecution = jobLauncher.run(jobFileUploadProcessing, params);
             log.info("Job Id: " + jobExecution.getJobId());
+            fileUploadJobHeader.setJobExecutionId(jobExecution.getJobId());
+            fileUploadJobHeaderService.saveFileUploadJobHeader(fileUploadJobHeader);
         }
     }
 }
