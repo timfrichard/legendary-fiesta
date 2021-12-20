@@ -1,6 +1,6 @@
 package com.tim.example.spring.batch.config;
 
-import com.tim.example.spring.batch.processors.item.listeners.JobCompletionNotificationListener;
+import com.tim.example.spring.batch.items.listeners.JobCompletionNotificationListener;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.JobRegistry;
@@ -28,24 +28,27 @@ public class BatchConfiguration {
         this.jobBuilderFactory = jobBuilderFactory;
     }
 
-    /**
-     * This method is the instantiation of the Spring Batch Job in which the Step(s) is passed via
-     * method arguments along with a Listener and this listener checks the database for saved items.
-     *
-     * @param listener
-     * @param stepTasBetcWriter
-     * @return Job
-     */
-    @Bean
-    public Job batchFileUploadJob(final JobCompletionNotificationListener listener, final Step stepTasBetcWriter) {
-        return jobBuilderFactory.get("importTasBetcJob")
-                .incrementer(new RunIdIncrementer())
-                .preventRestart()
-                .listener(listener)
-                .flow(stepTasBetcWriter)
-                .end()
-                .build();
-    }
+//    /**
+//     * This method is the instantiation of the Spring Batch Job in which the Step(s) is passed via
+//     * method arguments along with a Listener and this listener checks the database for saved items.
+//     *
+//     * @param listener
+//     * @param stepTasBetcWriter
+//     * @return Job
+//     */
+//    @Bean
+//    public Job batchFileUploadJob(final JobCompletionNotificationListener listener,
+//                                  final Step stepTasBetcWriter,
+//                                  final Step tasBetcFlatFileReader) {
+//        return jobBuilderFactory.get("importTasBetcJob")
+//                .incrementer(new RunIdIncrementer())
+//                .preventRestart()
+//                .listener(listener)
+//                .start(tasBetcFlatFileReader)
+//                .next(stepTasBetcWriter)
+////                .end()
+//                .build();
+//    }
 
     /**
      * All injected dependencies for this bean are provided by the @EnableBatchProcessing

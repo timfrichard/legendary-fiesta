@@ -1,4 +1,4 @@
-package com.tim.example.spring.batch.processors.item.reader;
+package com.tim.example.spring.batch.items.reader;
 
 import com.tim.example.spring.batch.model.entities.TasBetc;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -9,14 +9,16 @@ import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.LineTokenizer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TasBetcFlatFileReader extends FlatFileItemReader<TasBetc> {
 
     private FlatFileItemReader<TasBetc> itemReader;
 
     private final String[] fileHeaders;
 
-    public TasBetcFlatFileReader(final @Value("${file.csv.headers:}")  String[] fileHeaders){
+    public TasBetcFlatFileReader(final @Value("${file.csv.headers:}") String[] fileHeaders){
 
         this.fileHeaders = fileHeaders;
         setName("tasbetcItemReader");

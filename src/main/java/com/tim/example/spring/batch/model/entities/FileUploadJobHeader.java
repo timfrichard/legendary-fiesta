@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,6 +15,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Builder
@@ -26,6 +29,12 @@ public class FileUploadJobHeader extends BaseEntity{
 
     @Column(name = "EXIT_CODE")
     private String exitCode;
+
+    @Column(name = "FILE_NAME")
+    private String fileName;
+
+    @Column(name = "FILE_UPLOAD_DATETIME")
+    private LocalDateTime fileUploadDateTime;
 
     @Column(name = "FK_JOB_EXECUTION_ID")
     private Long jobExecutionId;
@@ -42,6 +51,7 @@ public class FileUploadJobHeader extends BaseEntity{
     @Column(name = "STATUS")
     private String status;
 
+    @ToString.Exclude
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "fileUploadJobHeader")
     private Set<TasBetc> tasbetcs;
 

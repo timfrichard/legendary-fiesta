@@ -1,6 +1,7 @@
 file:
   csv:
     headers: componentTasSP,componentTasATA,componentTasAID,componentTasBPOA,componentTasEPOA,componentTasA,componentTasMain,componentTasSub,adminBureau,gwaTas,gwaTasName,agencyName,betc,betcName,effectiveDate,suspendDate,credit,adjustmentBetc,starTas,starDeptReg,starDeptXfr,starMainAccount,transactionType,accountType,accountTypeDescription,fundType,fundTypeDescription,blankComma
+  root-directory: /temp/upload-folder
 management:
   endpoint:
     flyway:
@@ -50,6 +51,8 @@ spring:
     properties:
       hibernate:
         default_schema: PUBLIC
+  main:
+    allow-bean-definition-overriding: true
 ---
 
 spring:

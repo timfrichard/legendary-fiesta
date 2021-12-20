@@ -1,31 +1,28 @@
 package com.tim.example.spring.batch.config;
 
 import com.tim.example.spring.batch.model.entities.TasBetc;
-import com.tim.example.spring.batch.processors.item.listeners.ItemReadListenerFailureLogger;
-import com.tim.example.spring.batch.processors.item.processor.TasBetcItemProcessor;
-import com.tim.example.spring.batch.processors.item.writer.TasBetcItemWriter;
+import com.tim.example.spring.batch.items.listeners.ItemReadListenerFailureLogger;
+import com.tim.example.spring.batch.items.processor.TasBetcItemProcessor;
+import com.tim.example.spring.batch.items.reader.TasBetcFlatFileReader;
+import com.tim.example.spring.batch.items.writer.TasBetcItemWriter;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.item.ParseException;
-import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineMapper;
-import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.batch.item.file.transform.FlatFileFormatException;
 import org.springframework.batch.item.file.transform.LineTokenizer;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
 import org.springframework.batch.item.support.builder.SynchronizedItemStreamReaderBuilder;
+import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 
-@Configuration
+//@Configuration
 public class BatchFileUploadConfiguration {
 
     private final int chunkSize;
@@ -36,16 +33,19 @@ public class BatchFileUploadConfiguration {
 
     private final StepBuilderFactory stepBuilderFactory;
 
+    private final TasBetcFlatFileReader tasBetcFlatFileReader;
+
     private final TasBetcItemWriter tasBetcItemWriter;
 
     public BatchFileUploadConfiguration(final @Value("${spring.batch.chunkSize}") int chunkSize,
                                         final @Value("${file.csv.headers:}") String[] fileHeaders,
                                         ItemReadListenerFailureLogger itemReadListenerFailureLogger, StepBuilderFactory stepBuilderFactory,
-                                        TasBetcItemWriter tasBetcItemWriter) {
+                                        TasBetcFlatFileReader tasBetcFlatFileReader, TasBetcItemWriter tasBetcItemWriter) {
         this.chunkSize = chunkSize;
         this.fileHeaders = fileHeaders;
         this.itemReadListenerFailureLogger = itemReadListenerFailureLogger;
         this.stepBuilderFactory = stepBuilderFactory;
+        this.tasBetcFlatFileReader = tasBetcFlatFileReader;
         this.tasBetcItemWriter = tasBetcItemWriter;
     }
 
@@ -56,30 +56,38 @@ public class BatchFileUploadConfiguration {
      *
      * @return
      */
+//    @Bean
+//    @StepScope
+//    public FlatFileItemReader<TasBetc> reader() {
+//
+//        FlatFileItemReader<TasBetc> reader = new FlatFileItemReaderBuilder<TasBetc>()
+//                .name("tasbetcItemReader")
+//                /* A blank resource so there are no exceptions when the service comes up */
+//                /* Removing the blank resource set spring.batch.job.enabled=false in application.yml */
+//                //.resource(new ClassPathResource("blank_all_tas_betc.csv"))
+//                /* Creation of the Line Mapper to handle file reading see methods below */
+//                .lineMapper(createLineMapper())
+//                /* Build the FlatFileItemReader */
+//                .build();
+//        //Set number of lines to skips. Use it if file has header rows.
+//        reader.setLinesToSkip(2);
+//
+//        return reader;
+//    }
+
+//    @Bean
+//    @StepScope
+//    public TasBetcFlatFileReader reader(){
+//
+//        TasBetcFlatFileReader reader = new TasBetcFlatFileReader(fileHeaders);
+//
+//        return reader;
+//    }
+
     @Bean
-    @StepScope
-    public FlatFileItemReader<TasBetc> reader() {
-
-        FlatFileItemReader<TasBetc> reader = new FlatFileItemReaderBuilder<TasBetc>()
-                .name("tasbetcItemReader")
-                /* A blank resource so there are no exceptions when the service comes up */
-                /* Removing the blank resource set spring.batch.job.enabled=false in application.yml */
-                //.resource(new ClassPathResource("blank_all_tas_betc.csv"))
-                /* Creation of the Line Mapper to handle file reading see methods below */
-                .lineMapper(createLineMapper())
-                /* Build the FlatFileItemReader */
-                .build();
-        //Set number of lines to skips. Use it if file has header rows.
-        reader.setLinesToSkip(2);
-
-        return reader;
-    }
-
-    @Bean
-    @StepScope
     public SynchronizedItemStreamReader<TasBetc> synchronizedItemStreamReader(){
         return new SynchronizedItemStreamReaderBuilder<TasBetc>()
-                .delegate(reader())
+                .delegate(tasBetcFlatFileReader)
                 .build();
     }
 
@@ -113,24 +121,30 @@ public class BatchFileUploadConfiguration {
      * @return Step
      */
     @Bean
+//    @StepScope
     public Step writeTasBetcStep() {
 
         return stepBuilderFactory.get("stepTasBetcWriter")
                 /* Chunk value and this is from a property in the yml file */
-                .<TasBetc, TasBetc>chunk(chunkSize)
+//                .<TasBetc, TasBetc>chunk(chunkSize)
+                .tasklet((contribution, chunkContext) -> {
+                    // TODO get chunk size from table and put in job execution context
+                    chunkContext.getStepContext().getStepExecution().getJobExecution().getExecutionContext().put("chunkSize", chunkSize);
+                    return RepeatStatus.FINISHED;
+                })
                 /* Reader from above FlatFileItemReader */
-                .reader(synchronizedItemStreamReader())
+//                .reader(synchronizedItemStreamReader())
                 .listener(itemReadListenerFailureLogger)
                 /* Adding fault tolerance in order to configure skipping */
-                .faultTolerant()
+//                .faultTolerant()
                 /* Skip Limit setting */
-                .skipLimit(2)
-                .skip(FlatFileFormatException.class)
-                .skip(ParseException.class)
+//                .skipLimit(2)
+//                .skip(FlatFileFormatException.class)
+//                .skip(ParseException.class)
                 /* The item processor hooked in just in case any massaging of the data is needed before saving */
-                .processor(tasBetcItemProcessor())
+//                .processor(tasBetcItemProcessor())
                 /* setting the spring data repo as the writer */
-                .writer(tasBetcItemWriter)
+//                .writer(tasBetcItemWriter)
                 /* setting the async task executor for speed. */
                 .taskExecutor(taskExecutor())
                 /* Building the step */

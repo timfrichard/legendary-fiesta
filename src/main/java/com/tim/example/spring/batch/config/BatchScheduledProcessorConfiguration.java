@@ -7,4 +7,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class BatchScheduledProcessorConfiguration {
 
+//    @Bean
+//    @Primary
+//    public StepScope stepScope() {
+//        final StepScope stepScope = new StepScope();
+//        stepScope.setAutoProxy(false);
+//        return stepScope;
+//    }
 }
