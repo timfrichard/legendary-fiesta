@@ -15,7 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Builder
 @Data
@@ -113,7 +113,7 @@ public class TasBetc {
     private String fundTypeDescription;
 
     @Column(name = "PROCESS_DATETIME")
-    private Instant processDateTime;
+    private LocalDateTime processDateTime;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "FK_FILE_UPLOAD_JOB_HEADER_ID", nullable = false)
