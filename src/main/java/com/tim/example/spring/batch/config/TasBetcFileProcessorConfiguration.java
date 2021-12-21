@@ -32,7 +32,7 @@ public class TasBetcFileProcessorConfiguration {
 
     private final JobBuilderFactory jobBuilderFactory;
 
-    private final int skipLimit;
+    private final Integer skipLimit;
 
     private final StepBuilderFactory stepBuilderFactory;
 
@@ -42,7 +42,7 @@ public class TasBetcFileProcessorConfiguration {
                                              @Value("${file.csv.headers:}") final String[] fileHeaders,
                                              final ItemReadListenerFailureLogger itemReadListenerFailureLogger,
                                              final JobBuilderFactory jobBuilderFactory,
-                                             @Value("${spring.batch.skip-limit}") int skipLimit,
+                                             @Value("${spring.batch.skip-limit}") Integer skipLimit,
                                              final StepBuilderFactory stepBuilderFactory,
                                              final TasBetcItemWriter tasBetcItemWriter) {
         this.chunkSize = chunkSize;
@@ -71,8 +71,13 @@ public class TasBetcFileProcessorConfiguration {
     public Step stepFileUpload() {
         return stepBuilderFactory.get("stepFileUpload")
                 .<TasBetc, TasBetc>chunk(chunkSize)
+                /* Synchronized Async FlatFileItemReader */
                 .reader(synchronizedItemStreamReader())
                 .listener(itemReadListenerFailureLogger)
+                /* The item processor hooked in just in case any massaging of the data is needed before saving */
+                .processor(tasBetcItemProcessor())
+                /* setting the spring data repo as the writer */
+                .writer(tasBetcItemWriter)
                 /* Adding fault tolerance in order to configure skipping */
                 .faultTolerant()
                 /* Skip Limit setting */
@@ -80,10 +85,6 @@ public class TasBetcFileProcessorConfiguration {
                 /* The specific exceptions we are skipping */
                 .skip(FlatFileFormatException.class)
                 .skip(ParseException.class)
-                /* The item processor hooked in just in case any massaging of the data is needed before saving */
-                .processor(tasBetcItemProcessor())
-                /* setting the spring data repo as the writer */
-                .writer(tasBetcItemWriter)
                 /* setting the async task executor for speed. */
                 /* NOTE: It matters where in this step builder to place this executor. */
                 .taskExecutor(taskExecutor())

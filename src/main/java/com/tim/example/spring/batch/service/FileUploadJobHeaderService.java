@@ -5,6 +5,8 @@ import com.tim.example.spring.batch.repository.FileUploadJobHeaderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 public class FileUploadJobHeaderService {
@@ -20,6 +22,11 @@ public class FileUploadJobHeaderService {
     }
 
     public FileUploadJobHeader saveFileUploadJobHeader(final FileUploadJobHeader fileUploadJobHeader){
+        log.info("Saving File Upload Header");
         return fileUploadJobHeaderRepository.save(fileUploadJobHeader);
+    }
+
+    public FileUploadJobHeader findById(Long jobHeaderId) {
+        return fileUploadJobHeaderRepository.findById(jobHeaderId).get();
     }
 }

@@ -59,8 +59,8 @@ public class FileProcessorScheduler {
             log.info("Starting the batch job");
             final JobExecution jobExecution = jobLauncher.run(jobFileUploadProcessing, params);
             log.info("Job Id: " + jobExecution.getJobId());
-            fileUploadJobHeader.setJobExecutionId(jobExecution.getJobId());
-            fileUploadJobHeaderService.saveFileUploadJobHeader(fileUploadJobHeader);
+//            fileUploadJobHeader.setJobExecutionId(jobExecution.getJobId());
+//            fileUploadJobHeaderService.saveFileUploadJobHeader(fileUploadJobHeader);
         }
     }
 }
