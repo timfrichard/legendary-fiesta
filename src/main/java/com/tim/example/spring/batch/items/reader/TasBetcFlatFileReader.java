@@ -1,6 +1,7 @@
 package com.tim.example.spring.batch.items.reader;
 
 import com.tim.example.spring.batch.model.entities.TasBetc;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineMapper;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
@@ -9,20 +10,22 @@ import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.LineTokenizer;
 
+@Slf4j
 public class TasBetcFlatFileReader extends FlatFileItemReader<TasBetc> {
-
-    private FlatFileItemReader<TasBetc> itemReader;
 
     private final String[] fileHeaders;
 
-    public TasBetcFlatFileReader(final String[] fileHeaders){
+    private final int linesToSkip;
+
+    public TasBetcFlatFileReader(final String[] fileHeaders, int linesToSkip){
 
         this.fileHeaders = fileHeaders;
+        this.linesToSkip = linesToSkip;
         setName("tasbetcItemReader");
         /* Creation of the Line Mapper to handle file reading see methods below */
         setLineMapper(createLineMapper());
         /* Set number of lines to skips. Use it if file has header rows. */
-        setLinesToSkip(2);
+        setLinesToSkip(linesToSkip);
     }
 
     /**

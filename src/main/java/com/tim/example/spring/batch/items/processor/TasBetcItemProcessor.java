@@ -6,6 +6,9 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.item.ItemProcessor;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+
 @Slf4j
 public class TasBetcItemProcessor implements ItemProcessor<TasBetc, TasBetc> {
 
@@ -14,14 +17,9 @@ public class TasBetcItemProcessor implements ItemProcessor<TasBetc, TasBetc> {
     @Override
     public TasBetc process(final TasBetc tasBetc) throws Exception {
 
-//        Instant now = Instant.now();
-//        log.info("Processing (" + tasBetc + ") at the following time: (" + now + ")");
-
-
-//        ExecutionContext stepContext = this.stepExecution.getExecutionContext();
-//        stepExecution.getJobExecution().getJobParameters().getString("jobStartValue")
-//        tasBetc.setProcessDateTime(LocalDateTime.now());
-        log.info("Job Id: " + this.stepExecution.getJobExecutionId());
+        LocalDateTime now = LocalDateTime.now();
+        log.info("Processing (" + tasBetc + ") at the following time: (" + now + ")");
+        tasBetc.setProcessDateTime(now);
 
         return tasBetc;
     }

@@ -21,6 +21,7 @@ spring:
       enabled: false
     chunkSize: 25
     skip-limit: 2
+    lines-to-skip: 2
   datasource:
     driver-class-name: org.h2.Driver
     platform: "h2"

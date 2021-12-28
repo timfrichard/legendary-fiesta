@@ -1,15 +1,19 @@
 package com.tim.example.spring.batch.config;
 
-import com.tim.example.spring.batch.items.listeners.ItemReadListenerFailureLogger;
-import com.tim.example.spring.batch.items.listeners.JobCompletionNotificationListener;
+import com.tim.example.spring.batch.items.Constants;
+import com.tim.example.spring.batch.items.listeners.ItemReaderErrorListener;
+import com.tim.example.spring.batch.items.listeners.JobCompletionListener;
 import com.tim.example.spring.batch.items.processor.TasBetcItemProcessor;
 import com.tim.example.spring.batch.items.reader.TasBetcFlatFileReader;
 import com.tim.example.spring.batch.items.writer.TasBetcItemWriter;
 import com.tim.example.spring.batch.model.entities.TasBetc;
+import com.tim.example.spring.batch.service.ProcessingErrorService;
+import com.tim.example.spring.batch.service.storage.StorageService;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.file.transform.FlatFileFormatException;
@@ -28,52 +32,54 @@ public class TasBetcFileProcessorConfiguration {
 
     private final String[] fileHeaders;
 
-    private final ItemReadListenerFailureLogger itemReadListenerFailureLogger;
-
     private final JobBuilderFactory jobBuilderFactory;
 
     private final Integer skipLimit;
 
     private final StepBuilderFactory stepBuilderFactory;
 
+    private final StorageService storageService;
+
     private final TasBetcItemWriter tasBetcItemWriter;
 
-    public TasBetcFileProcessorConfiguration(@Value("${spring.batch.chunkSize}") final int chunkSize,
-                                             @Value("${file.csv.headers:}") final String[] fileHeaders,
-                                             final ItemReadListenerFailureLogger itemReadListenerFailureLogger,
+    public TasBetcFileProcessorConfiguration(final @Value("${spring.batch.chunkSize}") int chunkSize,
+                                             final @Value("${file.csv.headers:}") String[] fileHeaders,
                                              final JobBuilderFactory jobBuilderFactory,
-                                             @Value("${spring.batch.skip-limit}") Integer skipLimit,
+                                             final @Value("${spring.batch.skip-limit}") Integer skipLimit,
                                              final StepBuilderFactory stepBuilderFactory,
+                                             final StorageService storageService,
                                              final TasBetcItemWriter tasBetcItemWriter) {
         this.chunkSize = chunkSize;
         this.fileHeaders = fileHeaders;
-        this.itemReadListenerFailureLogger = itemReadListenerFailureLogger;
         this.jobBuilderFactory = jobBuilderFactory;
         this.skipLimit = skipLimit;
         this.stepBuilderFactory = stepBuilderFactory;
+        this.storageService = storageService;
         this.tasBetcItemWriter = tasBetcItemWriter;
     }
 
     @Bean
-    public Job jobFileUpload(final JobCompletionNotificationListener jobCompletionNotificationListener) {
-        return jobBuilderFactory.get("jobFileUploadProcessing")
+    public Job jobFileUpload(final JobCompletionListener jobCompletionListener,
+                             final Step stepFileUpload) {
+        return jobBuilderFactory.get(Constants.JOB_NAME)
                 .incrementer(new RunIdIncrementer())
                 /* Prevents the job from restarting if somehow a crash happens during the running */
                 /* I don't know if we should set this! */
                 .preventRestart()
                 /* This listener does the work after the job has completed */
-                .listener(jobCompletionNotificationListener)
-                .start(stepFileUpload())
+                .listener(jobCompletionListener)
+                .start(stepFileUpload)
                 .build();
     }
 
     @Bean
-    public Step stepFileUpload() {
-        return stepBuilderFactory.get("stepFileUpload")
+    public Step stepFileUpload(final SynchronizedItemStreamReader<TasBetc> synchronizedItemStreamReader,
+                               final ItemReaderErrorListener itemReaderErrorListener) {
+        return stepBuilderFactory.get(Constants.STEP_FILE_UPLOAD)
                 .<TasBetc, TasBetc>chunk(chunkSize)
                 /* Synchronized Async FlatFileItemReader */
-                .reader(synchronizedItemStreamReader())
-                .listener(itemReadListenerFailureLogger)
+                .reader(synchronizedItemStreamReader)
+                .listener(itemReaderErrorListener)
                 /* The item processor hooked in just in case any massaging of the data is needed before saving */
                 .processor(tasBetcItemProcessor())
                 /* setting the spring data repo as the writer */
@@ -87,13 +93,23 @@ public class TasBetcFileProcessorConfiguration {
                 .skip(ParseException.class)
                 /* setting the async task executor for speed. */
                 /* NOTE: It matters where in this step builder to place this executor. */
-                .taskExecutor(taskExecutor())
+                /* NOTE II: Using this Executor derails the skip logic */
+//                .taskExecutor(taskExecutor())
                 .build();
     }
 
     @Bean
-    public TasBetcFlatFileReader tasBetcFlatFileItemReader() {
-        return new TasBetcFlatFileReader(fileHeaders);
+    @StepScope
+    public TasBetcFlatFileReader tasBetcFlatFileItemReader(
+            final @Value("#{jobParameters['"+ Constants.PARAMETERS_TAS_BETC_FILE_NAME + "']}") String fileName,
+            final @Value("${spring.batch.lines-to-skip}") int linesToSkip) {
+
+        /* Instantiating the Flat File Reader */
+        TasBetcFlatFileReader tasBetcFlatFileReader = new TasBetcFlatFileReader(fileHeaders, linesToSkip);
+        /* Setting the file name which should have been set during launch */
+        tasBetcFlatFileReader.setResource(storageService.loadAsResource(fileName));
+
+        return tasBetcFlatFileReader;
     }
 
     /**
@@ -108,9 +124,9 @@ public class TasBetcFileProcessorConfiguration {
     }
 
     @Bean
-    public SynchronizedItemStreamReader<TasBetc> synchronizedItemStreamReader(){
+    public SynchronizedItemStreamReader<TasBetc> synchronizedItemStreamReader(final TasBetcFlatFileReader tasBetcFlatFileReader) {
         return new SynchronizedItemStreamReaderBuilder<TasBetc>()
-                .delegate(tasBetcFlatFileItemReader())
+                .delegate(tasBetcFlatFileReader)
                 .build();
     }
 
@@ -118,6 +134,9 @@ public class TasBetcFileProcessorConfiguration {
      * This is a TaskExecutor Bean it good for async chunk reading really speeds up the reading of the file.  Also,
      * this doesn't guarantee order which we have to make sure our process does need to depend on the order of the
      * CSV file.
+     * <p>
+     * I decided not to use this because it wasn't predictable when depending on fault tolerance and skip count.  Since
+     * it runs asynchronous you may have failures in different threads therefore the count would be off.
      *
      * @return TaskExecutor
      */
@@ -126,4 +145,15 @@ public class TasBetcFileProcessorConfiguration {
         return new SimpleAsyncTaskExecutor("tas_betc_reader_task_executor");
     }
 
+    @Bean
+    @StepScope
+    public ItemReaderErrorListener itemReadListenerFailureLogger(
+            final @Value("#{jobParameters['"+ Constants.PARAMETERS_JOB_HEADER_ID + "']}") Long fileUploadJobHeaderId,
+            final ProcessingErrorService processingErrorService) {
+
+        final ItemReaderErrorListener itemReaderErrorListener =
+                new ItemReaderErrorListener(fileUploadJobHeaderId, processingErrorService);
+
+        return itemReaderErrorListener;
+    }
 }

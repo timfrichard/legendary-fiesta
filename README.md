@@ -8,6 +8,10 @@ Spring Batch Reference Links:
 > [Baeldung GitHub Spring Batch Examples](https://github.com/eugenp/tutorials/tree/master/spring-batch)
 > 
 > [Spring IO Configuring and Running a Job](https://docs.spring.io/spring-batch/docs/current/reference/html/job.html)
+> 
+> [Examples of StepScope I](https://www.programcreek.com/java-api-examples/?api=org.springframework.batch.core.configuration.annotation.StepScope)
+> 
+> [Examples of StepScope II](https://www.programcreek.com/java-api-examples/?code=michaelhoffmantech%2Fpatient-batch-loader%2Fpatient-batch-loader-master%2Fsrc%2Fmain%2Fjava%2Fcom%2Fpluralsight%2Fspringbatch%2Fpatientbatchloader%2Fconfig%2FBatchJobConfiguration.java)
 
 ## Run Spring Boot application
 ```

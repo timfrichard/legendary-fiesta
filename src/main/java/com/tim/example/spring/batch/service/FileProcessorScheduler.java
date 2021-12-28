@@ -1,5 +1,6 @@
 package com.tim.example.spring.batch.service;
 
+import com.tim.example.spring.batch.items.Constants;
 import com.tim.example.spring.batch.items.reader.TasBetcFlatFileReader;
 import com.tim.example.spring.batch.model.entities.FileUploadJobHeader;
 import com.tim.example.spring.batch.service.storage.StorageService;
@@ -49,18 +50,15 @@ public class FileProcessorScheduler {
         FileUploadJobHeader fileUploadJobHeader = fileUploadJobHeaderService.getReadyToProcessFile();
         if (fileUploadJobHeader != null) {
             final JobParameters params = new JobParametersBuilder()
-                    .addString("jobStartValue", String.valueOf(System.currentTimeMillis()))
-                    .addLong("jobHeaderId", fileUploadJobHeader.getId())
+                    .addString(Constants.PARAMETERS_JOB_START_VALUE, String.valueOf(System.currentTimeMillis()))
+                    .addLong(Constants.PARAMETERS_JOB_HEADER_ID, fileUploadJobHeader.getId())
+                    .addString(Constants.PARAMETERS_TAS_BETC_FILE_NAME, fileUploadJobHeader.getFileName())
                     .toJobParameters();
 
-            log.info("Setting File here");
-            log.info(fileUploadJobHeader.toString());
-            tasBetcFlatFileReader.setResource(storageService.loadAsResource(fileUploadJobHeader.getFileName()));
             log.info("Starting the batch job");
             final JobExecution jobExecution = jobLauncher.run(jobFileUploadProcessing, params);
-            log.info("Job Id: " + jobExecution.getJobId());
-//            fileUploadJobHeader.setJobExecutionId(jobExecution.getJobId());
-//            fileUploadJobHeaderService.saveFileUploadJobHeader(fileUploadJobHeader);
+        } else {
+            log.info("There are no files waiting to be processed.");
         }
     }
 }
