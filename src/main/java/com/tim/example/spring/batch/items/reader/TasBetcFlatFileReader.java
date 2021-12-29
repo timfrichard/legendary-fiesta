@@ -1,6 +1,6 @@
 package com.tim.example.spring.batch.items.reader;
 
-import com.tim.example.spring.batch.model.entities.TasBetc;
+import com.tim.example.spring.batch.model.dtos.TasBetcDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineMapper;
@@ -11,7 +11,7 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.LineTokenizer;
 
 @Slf4j
-public class TasBetcFlatFileReader extends FlatFileItemReader<TasBetc> {
+public class TasBetcFlatFileReader extends FlatFileItemReader<TasBetcDTO> {
 
     private final String[] fileHeaders;
 
@@ -33,11 +33,11 @@ public class TasBetcFlatFileReader extends FlatFileItemReader<TasBetc> {
      *
      * @return LineMapper
      */
-    private LineMapper<TasBetc> createLineMapper() {
-        DefaultLineMapper<TasBetc> tasBetcDefaultLineMapper = new DefaultLineMapper<>();
+    private LineMapper<TasBetcDTO> createLineMapper() {
+        DefaultLineMapper<TasBetcDTO> tasBetcDefaultLineMapper = new DefaultLineMapper<>();
         LineTokenizer lineTokenizer = createTasBetcLineTokenizer();
         tasBetcDefaultLineMapper.setLineTokenizer(lineTokenizer);
-        FieldSetMapper<TasBetc> fieldSetMapper = createTasBetcFieldSetMapper();
+        FieldSetMapper<TasBetcDTO> fieldSetMapper = createTasBetcFieldSetMapper();
         tasBetcDefaultLineMapper.setFieldSetMapper(fieldSetMapper);
 
         return tasBetcDefaultLineMapper;
@@ -62,10 +62,10 @@ public class TasBetcFlatFileReader extends FlatFileItemReader<TasBetc> {
      *
      * @return FieldSetMapper
      */
-    private FieldSetMapper<TasBetc> createTasBetcFieldSetMapper() {
+    private FieldSetMapper<TasBetcDTO> createTasBetcFieldSetMapper() {
 
-        BeanWrapperFieldSetMapper<TasBetc> beanWrapperFieldSetMapper = new BeanWrapperFieldSetMapper<>();
-        beanWrapperFieldSetMapper.setTargetType(TasBetc.class);
+        BeanWrapperFieldSetMapper<TasBetcDTO> beanWrapperFieldSetMapper = new BeanWrapperFieldSetMapper<>();
+        beanWrapperFieldSetMapper.setTargetType(TasBetcDTO.class);
 
         return beanWrapperFieldSetMapper;
     }

@@ -1,8 +1,8 @@
 package com.tim.example.spring.batch.items.listeners;
 
+import com.tim.example.spring.batch.model.dtos.TasBetcDTO;
 import com.tim.example.spring.batch.model.entities.FileUploadJobHeader;
 import com.tim.example.spring.batch.model.entities.ProcessingError;
-import com.tim.example.spring.batch.model.entities.TasBetc;
 import com.tim.example.spring.batch.service.ProcessingErrorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.ItemReadListener;
@@ -12,7 +12,7 @@ import org.springframework.batch.item.file.transform.IncorrectTokenCountExceptio
 import javax.transaction.Transactional;
 
 @Slf4j
-public class ItemReaderErrorListener implements ItemReadListener<TasBetc>{
+public class ItemReaderErrorListener implements ItemReadListener<TasBetcDTO>{
 
     private final Long fileUploadJobHeaderId;
 
@@ -30,7 +30,7 @@ public class ItemReaderErrorListener implements ItemReadListener<TasBetc>{
     }
 
     @Override
-    public void afterRead(TasBetc tasBetc) {
+    public void afterRead(TasBetcDTO tasBetc) {
         // no op
     }
 
