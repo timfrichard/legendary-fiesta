@@ -2,7 +2,7 @@ package com.tim.example.spring.batch.items.writer;
 
 import com.tim.example.spring.batch.model.entities.TasBetc;
 import com.tim.example.spring.batch.repository.FileUploadJobHeaderRepository;
-import com.tim.example.spring.batch.repository.TasBetcRepository;
+import com.tim.example.spring.batch.service.TasBetcService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
@@ -25,12 +25,13 @@ public class TasBetcItemWriter implements ItemWriter<TasBetc> {
 
     private final FileUploadJobHeaderRepository fileUploadJobHeaderRepository;
 
-    private final TasBetcRepository tasBetcRepository;
+    private final TasBetcService tasBetcService;
 
     @Autowired
-    public TasBetcItemWriter(FileUploadJobHeaderRepository fileUploadJobHeaderRepository, TasBetcRepository tasBetcRepository) {
+    public TasBetcItemWriter(final FileUploadJobHeaderRepository fileUploadJobHeaderRepository,
+                             final TasBetcService tasBetcService) {
         this.fileUploadJobHeaderRepository = fileUploadJobHeaderRepository;
-        this.tasBetcRepository = tasBetcRepository;
+        this.tasBetcService = tasBetcService;
     }
 
     @Override
@@ -46,7 +47,7 @@ public class TasBetcItemWriter implements ItemWriter<TasBetc> {
                     .get());
         });
 
-        tasBetcRepository.saveAll(tasBetcs);
+        tasBetcService.saveAll(tasBetcs);
     }
 
     @BeforeStep

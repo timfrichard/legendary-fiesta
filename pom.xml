@@ -68,6 +68,12 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
+        <!-- Google Collections -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${google.collections.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -81,6 +87,7 @@
     </dependencies>
 
     <properties>
+        <google.collections.version>31.0.1-jre</google.collections.version>
         <java.version>1.8</java.version>
         <lombok.version>1.18.18</lombok.version>
         <maven.compiler.plugin.ver>3.8.1</maven.compiler.plugin.ver>

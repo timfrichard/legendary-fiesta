@@ -1,8 +1,9 @@
-package com.tim.example.spring.batch.items.listeners;
+package com.tim.example.spring.batch.items.listeners.error;
 
 import com.tim.example.spring.batch.model.dtos.TasBetcDTO;
 import com.tim.example.spring.batch.model.entities.FileUploadJobHeader;
 import com.tim.example.spring.batch.model.entities.ProcessingError;
+import com.tim.example.spring.batch.model.entities.StepTypeError;
 import com.tim.example.spring.batch.service.ProcessingErrorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.ItemReadListener;
@@ -12,14 +13,14 @@ import org.springframework.batch.item.file.transform.IncorrectTokenCountExceptio
 import javax.transaction.Transactional;
 
 @Slf4j
-public class ItemReaderErrorListener implements ItemReadListener<TasBetcDTO>{
+public class FileUploadReaderErrorListener implements ItemReadListener<TasBetcDTO>{
 
     private final Long fileUploadJobHeaderId;
 
     private final ProcessingErrorService processingErrorService;
 
-    public ItemReaderErrorListener(final Long fileUploadJobHeaderId,
-                                   final ProcessingErrorService processingErrorService) {
+    public FileUploadReaderErrorListener(final Long fileUploadJobHeaderId,
+                                         final ProcessingErrorService processingErrorService) {
         this.fileUploadJobHeaderId = fileUploadJobHeaderId;
         this.processingErrorService = processingErrorService;
     }
@@ -44,7 +45,8 @@ public class ItemReaderErrorListener implements ItemReadListener<TasBetcDTO>{
     public void onReadError(Exception e) {
 
         final ProcessingError processingError = ProcessingError.builder().fileUploadJobHeader(FileUploadJobHeader
-                .builder().jobHeaderId(fileUploadJobHeaderId).build()).build();
+                .builder().jobHeaderId(fileUploadJobHeaderId).build()).stepTypeError(StepTypeError.FILEUPLOADREADER)
+                .build();
 
         if (e instanceof IncorrectTokenCountException) {
             IncorrectTokenCountException incorrectTokenCountException = (IncorrectTokenCountException) e;

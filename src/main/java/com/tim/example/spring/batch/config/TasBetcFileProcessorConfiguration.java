@@ -1,14 +1,16 @@
 package com.tim.example.spring.batch.config;
 
 import com.tim.example.spring.batch.items.Constants;
-import com.tim.example.spring.batch.items.listeners.ItemReaderErrorListener;
 import com.tim.example.spring.batch.items.listeners.JobCompletionListener;
+import com.tim.example.spring.batch.items.listeners.error.FileUploadProcessorErrorListener;
+import com.tim.example.spring.batch.items.listeners.error.FileUploadReaderErrorListener;
 import com.tim.example.spring.batch.items.processor.TasBetcItemProcessor;
 import com.tim.example.spring.batch.items.reader.TasBetcFlatFileReader;
 import com.tim.example.spring.batch.items.writer.TasBetcItemWriter;
 import com.tim.example.spring.batch.model.dtos.TasBetcDTO;
 import com.tim.example.spring.batch.model.entities.TasBetc;
 import com.tim.example.spring.batch.service.ProcessingErrorService;
+import com.tim.example.spring.batch.service.TasBetcService;
 import com.tim.example.spring.batch.service.storage.StorageService;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -46,16 +48,13 @@ public class TasBetcFileProcessorConfiguration {
 
     private final TasBetcItemWriter tasBetcItemWriter;
 
-    private final ValidatorFactory validator;
-
     public TasBetcFileProcessorConfiguration(final @Value("${spring.batch.chunkSize}") int chunkSize,
                                              final @Value("${file.csv.headers:}") String[] fileHeaders,
                                              final JobBuilderFactory jobBuilderFactory,
                                              final @Value("${spring.batch.skip-limit}") Integer skipLimit,
                                              final StepBuilderFactory stepBuilderFactory,
                                              final StorageService storageService,
-                                             final TasBetcItemWriter tasBetcItemWriter,
-                                             final ValidatorFactory validator) {
+                                             final TasBetcItemWriter tasBetcItemWriter) {
         this.chunkSize = chunkSize;
         this.fileHeaders = fileHeaders;
         this.jobBuilderFactory = jobBuilderFactory;
@@ -63,7 +62,6 @@ public class TasBetcFileProcessorConfiguration {
         this.stepBuilderFactory = stepBuilderFactory;
         this.storageService = storageService;
         this.tasBetcItemWriter = tasBetcItemWriter;
-        this.validator = validator;
     }
 
     @Bean
@@ -82,15 +80,17 @@ public class TasBetcFileProcessorConfiguration {
 
     @Bean
     public Step stepFileUpload(final SynchronizedItemStreamReader<TasBetcDTO> synchronizedItemStreamReader,
-                               final ItemReaderErrorListener itemReaderErrorListener,
-                               final TasBetcItemProcessor tasBetcItemProcessor) {
+                               final FileUploadReaderErrorListener fileUploadReaderErrorListener,
+                               final TasBetcItemProcessor tasBetcItemProcessor,
+                               final FileUploadProcessorErrorListener fileUploadProcessorErrorListener) {
         return stepBuilderFactory.get(Constants.STEP_FILE_UPLOAD)
                 .<TasBetcDTO, TasBetc>chunk(chunkSize)
                 /* Synchronized Async FlatFileItemReader */
                 .reader(synchronizedItemStreamReader)
-                .listener(itemReaderErrorListener)
+                .listener(fileUploadReaderErrorListener)
                 /* The item processor hooked in just in case any massaging of the data is needed before saving */
                 .processor(tasBetcItemProcessor)
+                .listener(fileUploadProcessorErrorListener)
                 /* setting the spring data repo as the writer */
                 .writer(tasBetcItemWriter)
                 /* Adding fault tolerance in order to configure skipping */
@@ -101,17 +101,18 @@ public class TasBetcFileProcessorConfiguration {
                 .skip(FlatFileFormatException.class)
                 .skip(ParseException.class)
                 .skip(ConstraintViolationException.class)
+                .listener(fileUploadProcessorErrorListener)
                 /* setting the async task executor for speed. */
                 /* NOTE: It matters where in this step builder to place this executor. */
                 /* NOTE II: Using this Executor derails the skip logic */
-//                .taskExecutor(taskExecutor())
+                // .taskExecutor(taskExecutor())
                 .build();
     }
 
     @Bean
     @StepScope
     public TasBetcFlatFileReader tasBetcFlatFileItemReader(
-            final @Value("#{jobParameters['"+ Constants.PARAMETERS_TAS_BETC_FILE_NAME + "']}") String fileName,
+            final @Value("#{jobParameters['" + Constants.PARAMETERS_TAS_BETC_FILE_NAME + "']}") String fileName,
             final @Value("${spring.batch.lines-to-skip}") int linesToSkip) {
 
         /* Instantiating the Flat File Reader */
@@ -129,8 +130,12 @@ public class TasBetcFileProcessorConfiguration {
      * @return TasBetcItemProcessor
      */
     @Bean
-    public TasBetcItemProcessor tasBetcItemProcessor() {
-        return new TasBetcItemProcessor(validator);
+    @StepScope
+    public TasBetcItemProcessor tasBetcItemProcessor(final TasBetcService tasBetcService,
+                                                     final ValidatorFactory validator,
+                                                     final @Value("#{jobParameters['" + Constants.PARAMETERS_JOB_HEADER_ID + "']}")
+                                                                 Long fileUploadJobHeaderId) {
+        return new TasBetcItemProcessor(tasBetcService, validator);
     }
 
     @Bean
@@ -157,13 +162,17 @@ public class TasBetcFileProcessorConfiguration {
 
     @Bean
     @StepScope
-    public ItemReaderErrorListener itemReadListenerFailureLogger(
-            final @Value("#{jobParameters['"+ Constants.PARAMETERS_JOB_HEADER_ID + "']}") Long fileUploadJobHeaderId,
+    public FileUploadReaderErrorListener fileUploadReaderErrorListener(
+            final @Value("#{jobParameters['" + Constants.PARAMETERS_JOB_HEADER_ID + "']}") Long fileUploadJobHeaderId,
             final ProcessingErrorService processingErrorService) {
+        return new FileUploadReaderErrorListener(fileUploadJobHeaderId, processingErrorService);
+    }
 
-        final ItemReaderErrorListener itemReaderErrorListener =
-                new ItemReaderErrorListener(fileUploadJobHeaderId, processingErrorService);
-
-        return itemReaderErrorListener;
+    @Bean
+    @StepScope
+    public FileUploadProcessorErrorListener fileUploadProcessorErrorListener(
+            final @Value("#{jobParameters['" + Constants.PARAMETERS_JOB_HEADER_ID + "']}") Long fileUploadJobHeaderId,
+            final ProcessingErrorService processingErrorService) {
+        return new FileUploadProcessorErrorListener(fileUploadJobHeaderId, processingErrorService);
     }
 }

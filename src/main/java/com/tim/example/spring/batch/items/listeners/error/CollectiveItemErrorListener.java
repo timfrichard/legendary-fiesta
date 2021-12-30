@@ -1,7 +1,8 @@
-package com.tim.example.spring.batch.items.listeners;
+package com.tim.example.spring.batch.items.listeners.error;
 
 import com.tim.example.spring.batch.model.entities.FileUploadJobHeader;
 import com.tim.example.spring.batch.model.entities.ProcessingError;
+import com.tim.example.spring.batch.model.entities.StepTypeError;
 import com.tim.example.spring.batch.service.ProcessingErrorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.listener.ItemListenerSupport;
@@ -9,6 +10,7 @@ import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.transform.IncorrectTokenCountException;
 
 import javax.transaction.Transactional;
+import javax.validation.ConstraintViolationException;
 
 @Slf4j
 public class CollectiveItemErrorListener extends ItemListenerSupport {
@@ -26,13 +28,15 @@ public class CollectiveItemErrorListener extends ItemListenerSupport {
     /**
      * The transactional annotation is needed as a REQUIRES_NEW.
      * See:  https://docs.spring.io/spring-batch/docs/current/reference/html/common-patterns.html#loggingItemProcessingAndFailures
+     *
      * @param exception Exception
      */
     @Override
     @Transactional(Transactional.TxType.REQUIRES_NEW)
     public void onReadError(Exception exception) {
         final ProcessingError processingError = ProcessingError.builder().fileUploadJobHeader(FileUploadJobHeader
-                .builder().jobHeaderId(fileUploadJobHeaderId).build()).build();
+                        .builder().jobHeaderId(fileUploadJobHeaderId).build()).stepTypeError(StepTypeError.FILEUPLOADREADER)
+                .build();
 
         if (exception instanceof IncorrectTokenCountException) {
             IncorrectTokenCountException incorrectTokenCountException = (IncorrectTokenCountException) exception;
@@ -47,10 +51,24 @@ public class CollectiveItemErrorListener extends ItemListenerSupport {
             processingError.setProcessingErrorDescription(errorMessage);
         } else {
             String errorMessage = exception.getMessage();
-            log.error("Encountered error on read DUMMY!", errorMessage);
+            log.error("Encountered error on read.", errorMessage);
             processingError.setProcessingErrorDescription(errorMessage);
         }
 
         processingErrorService.saveProcessingError(processingError);
     }
+
+    @Override
+    public void onProcessError(Object tasBetcDTO, Exception exception) {
+
+        if (exception instanceof ConstraintViolationException) {
+            ConstraintViolationException constraintViolationException = (ConstraintViolationException) exception;
+            System.out.println("Test");
+        } else {
+            String errorMessage = exception.getMessage();
+            log.error("Encountered error on read.", errorMessage);
+            //processingError.setProcessingErrorDescription(errorMessage);
+        }
+    }
+
 }

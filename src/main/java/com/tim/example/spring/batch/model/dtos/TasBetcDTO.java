@@ -1,5 +1,6 @@
 package com.tim.example.spring.batch.model.dtos;
 
+import com.tim.example.spring.batch.model.constraints.EmptyAllowedMaxMinSize;
 import com.tim.example.spring.batch.model.entities.FileUploadJobHeader;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Builder
@@ -16,37 +16,37 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class TasBetcDTO {
 
-    @Size(max = 2, min = 2, message = "SP is a min/max of 2")
+    @EmptyAllowedMaxMinSize(max = 2, min = 2, label = "Component SP")
     private String componentTasSP;
 
-    @Size(max = 3, min = 3, message = "ATA is a min/max of 3")
+    @EmptyAllowedMaxMinSize(max = 3, min = 3, label = "Component ATA")
     private String componentTasATA;
 
     @NotNull(message = "AID can't be null.")
-    @Size(max = 3, min = 3, message = "AID is a min/max of 3")
+    @EmptyAllowedMaxMinSize(allowEmpty = false, max = 3, min = 3, label = "Component AID")
     private String componentTasAID;
 
-    @Size(max = 4, min = 4, message = "BPOA is a min/max of 4")
+    @EmptyAllowedMaxMinSize(max = 4, min = 4, label = "Component BPOA")
     private String componentTasBPOA;
 
-    @Size(max = 4, min = 4, message = "EPOA is a min/max of 4")
+    @EmptyAllowedMaxMinSize(max = 4, min = 4, label = "Component EPOA")
     private String componentTasEPOA;
 
-    @Size(max = 1, min = 1, message = "Availability Type is a min/max of 1")
+    @EmptyAllowedMaxMinSize(max = 1, min = 1, label = "Component Availability Type")
     private String componentTasA;
 
     @NotNull(message = "Main Account can't be null.")
-    @Size(max = 4, min = 4, message = "Main is a min/max of 4")
+    @EmptyAllowedMaxMinSize(allowEmpty = false, max = 4, min = 4, label = "Component Main")
     private String componentTasMain;
 
     @NotNull(message = "Sub Account can't be null.")
-    @Size(max = 3, min = 3, message = "Sub Account is a min/max of 3")
+    @EmptyAllowedMaxMinSize(allowEmpty = false, max = 3, min = 3, label = "Component Sub Account")
     private String componentTasSub;
 
-    @Size(max = 2, min = 2, message = "Admin Bureau is a min/max of 2")
+    @EmptyAllowedMaxMinSize(max = 2, min = 2, label = "Component Admin Bureau")
     private String adminBureau;
 
-    @Size(max = 27, message = "String TAS is a max of 27")
+    @EmptyAllowedMaxMinSize(max = 27, label = "String TAS")
     private String gwaTas;
 
     private String gwaTasName;
@@ -54,7 +54,7 @@ public class TasBetcDTO {
     private String agencyName;
 
     @NotNull(message = "BETC can't be null.")
-    @Size(max = 8, min = 2, message = "BETC is a min of 2 and max of 8")
+    @EmptyAllowedMaxMinSize(allowEmpty = false, max = 8, min = 2, label = "BETC")
     private String betc;
 
     private String betcName;
@@ -64,7 +64,7 @@ public class TasBetcDTO {
     private String suspendDate;
 
     @NotNull(message = "Is Credit can't be null.")
-    @Size(max = 1, min = 1, message = "IsCredit is a min/max of 1")
+    @EmptyAllowedMaxMinSize(allowEmpty = false, max = 1, min = 1, label = "IsCredit is a min/max of 1")
     private String credit;
 
     private String adjustmentBetc;

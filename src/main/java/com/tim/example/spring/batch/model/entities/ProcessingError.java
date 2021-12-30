@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -36,6 +38,10 @@ public class ProcessingError {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "processing_error_sequence_gen")
     @SequenceGenerator(allocationSize = 10, name = "processing_error_sequence_gen", sequenceName = "PROCESSING_ERROR_SEQ")
     private Long processingErrorId;
+
+    @Column(name = "STEP_TYPE_ERROR", length = 30)
+    @Enumerated(EnumType.STRING)
+    private StepTypeError stepTypeError;
 
     @Column(name = "VERSION_ID")
     @Version
