@@ -1,7 +1,7 @@
 package com.tim.example.spring.batch.service.storage;
 
+import com.tim.example.spring.batch.properties.FileUploadJobProperties;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -20,11 +20,11 @@ import java.util.stream.Stream;
 @Service
 public class StorageService {
 
-	private final Path rootLocation;
+	private final FileUploadJobProperties fileUploadJobProperties;
 
 	@Autowired
-	public StorageService(final @Value("${file.root-directory}") String rootLocation) {
-		this.rootLocation = Paths.get(rootLocation);
+	public StorageService(final FileUploadJobProperties fileUploadJobProperties) {
+		this.fileUploadJobProperties = fileUploadJobProperties;
 	}
 
 	public void store(MultipartFile file) {
@@ -32,10 +32,11 @@ public class StorageService {
 			if (file.isEmpty()) {
 				throw new StorageException("Failed to store empty file.");
 			}
-			Path destinationFile = this.rootLocation.resolve(
+			Path destinationFile = fileUploadJobProperties.getFileUploadRootDirectory().resolve(
 					Paths.get(file.getOriginalFilename()))
 					.normalize().toAbsolutePath();
-			if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
+			if (!destinationFile.getParent().equals(fileUploadJobProperties
+					.getFileUploadRootDirectory().toAbsolutePath())) {
 				// This is a security check
 				throw new StorageException(
 						"Cannot store file outside current directory.");
@@ -52,9 +53,9 @@ public class StorageService {
 
 	public Stream<Path> loadAll() {
 		try {
-			return Files.walk(this.rootLocation, 1)
-				.filter(path -> !path.equals(this.rootLocation))
-				.map(this.rootLocation::relativize);
+			return Files.walk(fileUploadJobProperties.getFileUploadRootDirectory(), 1)
+				.filter(path -> !path.equals(fileUploadJobProperties.getFileUploadRootDirectory()))
+				.map(fileUploadJobProperties.getFileUploadRootDirectory()::relativize);
 		}
 		catch (IOException e) {
 			throw new StorageException("Failed to read stored files", e);
@@ -63,7 +64,7 @@ public class StorageService {
 	}
 
 	public Path load(String filename) {
-		return rootLocation.resolve(filename);
+		return fileUploadJobProperties.getFileUploadRootDirectory().resolve(filename);
 	}
 
 	public Resource loadAsResource(String filename) {
@@ -85,12 +86,12 @@ public class StorageService {
 	}
 
 	public void deleteAll() {
-		FileSystemUtils.deleteRecursively(rootLocation.toFile());
+		FileSystemUtils.deleteRecursively(fileUploadJobProperties.getFileUploadRootDirectory().toFile());
 	}
 
 	public void init() {
 		try {
-			Files.createDirectories(rootLocation);
+			Files.createDirectories(fileUploadJobProperties.getFileUploadRootDirectory());
 		}
 		catch (IOException e) {
 			throw new StorageException("Could not initialize storage", e);

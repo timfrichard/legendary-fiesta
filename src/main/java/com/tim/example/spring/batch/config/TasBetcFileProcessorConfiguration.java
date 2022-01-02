@@ -9,6 +9,7 @@ import com.tim.example.spring.batch.items.reader.TasBetcFlatFileReader;
 import com.tim.example.spring.batch.items.writer.TasBetcItemWriter;
 import com.tim.example.spring.batch.model.dtos.TasBetcDTO;
 import com.tim.example.spring.batch.model.entities.TasBetc;
+import com.tim.example.spring.batch.properties.FileUploadJobProperties;
 import com.tim.example.spring.batch.service.ProcessingErrorService;
 import com.tim.example.spring.batch.service.TasBetcService;
 import com.tim.example.spring.batch.service.storage.StorageService;
@@ -34,13 +35,9 @@ import javax.validation.ValidatorFactory;
 @Configuration
 public class TasBetcFileProcessorConfiguration {
 
-    private final int chunkSize;
-
-    private final String[] fileHeaders;
+    private final FileUploadJobProperties fileUploadJobProperties;
 
     private final JobBuilderFactory jobBuilderFactory;
-
-    private final Integer skipLimit;
 
     private final StepBuilderFactory stepBuilderFactory;
 
@@ -48,17 +45,12 @@ public class TasBetcFileProcessorConfiguration {
 
     private final TasBetcItemWriter tasBetcItemWriter;
 
-    public TasBetcFileProcessorConfiguration(final @Value("${spring.batch.chunkSize}") int chunkSize,
-                                             final @Value("${file.csv.headers:}") String[] fileHeaders,
-                                             final JobBuilderFactory jobBuilderFactory,
-                                             final @Value("${spring.batch.skip-limit}") Integer skipLimit,
-                                             final StepBuilderFactory stepBuilderFactory,
+    public TasBetcFileProcessorConfiguration(final JobBuilderFactory jobBuilderFactory,
+                                             FileUploadJobProperties fileUploadJobProperties, final StepBuilderFactory stepBuilderFactory,
                                              final StorageService storageService,
                                              final TasBetcItemWriter tasBetcItemWriter) {
-        this.chunkSize = chunkSize;
-        this.fileHeaders = fileHeaders;
+        this.fileUploadJobProperties = fileUploadJobProperties;
         this.jobBuilderFactory = jobBuilderFactory;
-        this.skipLimit = skipLimit;
         this.stepBuilderFactory = stepBuilderFactory;
         this.storageService = storageService;
         this.tasBetcItemWriter = tasBetcItemWriter;
@@ -84,7 +76,7 @@ public class TasBetcFileProcessorConfiguration {
                                final TasBetcItemProcessor tasBetcItemProcessor,
                                final FileUploadProcessorErrorListener fileUploadProcessorErrorListener) {
         return stepBuilderFactory.get(Constants.STEP_FILE_UPLOAD)
-                .<TasBetcDTO, TasBetc>chunk(chunkSize)
+                .<TasBetcDTO, TasBetc>chunk(fileUploadJobProperties.getChunkSize())
                 /* Synchronized Async FlatFileItemReader */
                 .reader(synchronizedItemStreamReader)
                 .listener(fileUploadReaderErrorListener)
@@ -96,7 +88,7 @@ public class TasBetcFileProcessorConfiguration {
                 /* Adding fault tolerance in order to configure skipping */
                 .faultTolerant()
                 /* Skip Limit setting */
-                .skipLimit(skipLimit)
+                .skipLimit(fileUploadJobProperties.getSkipLimit())
                 /* The specific exceptions we are skipping */
                 .skip(FlatFileFormatException.class)
                 .skip(ParseException.class)
@@ -112,11 +104,11 @@ public class TasBetcFileProcessorConfiguration {
     @Bean
     @StepScope
     public TasBetcFlatFileReader tasBetcFlatFileItemReader(
-            final @Value("#{jobParameters['" + Constants.PARAMETERS_TAS_BETC_FILE_NAME + "']}") String fileName,
-            final @Value("${spring.batch.lines-to-skip}") int linesToSkip) {
+            final @Value("#{jobParameters['" + Constants.PARAMETERS_TAS_BETC_FILE_NAME + "']}") String fileName) {
 
         /* Instantiating the Flat File Reader */
-        TasBetcFlatFileReader tasBetcFlatFileReader = new TasBetcFlatFileReader(fileHeaders, linesToSkip);
+        TasBetcFlatFileReader tasBetcFlatFileReader = new TasBetcFlatFileReader(
+                fileUploadJobProperties.getCsvFileHeaders(), fileUploadJobProperties.getBeginningLinesToSkip());
         /* Setting the file name which should have been set during launch */
         tasBetcFlatFileReader.setResource(storageService.loadAsResource(fileName));
 

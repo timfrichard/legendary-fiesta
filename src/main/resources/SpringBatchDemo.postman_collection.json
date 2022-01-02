@@ -1,0 +1,97 @@
+{
+	"info": {
+		"_postman_id": "02398ce1-aaec-4dff-9000-23c3380c8a39",
+		"name": "SpringBatchDemo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "SpringBatchDemoErrorFile",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "tasbetcFile",
+							"type": "file",
+							"src": "/C:/programs/github-projects/legendary-fiesta/src/main/resources/error_tas_betc.csv"
+						}
+					]
+				},
+				"url": "http://localhost:8081/springbatchdemo/launchFileUpload"
+			},
+			"response": []
+		},
+		{
+			"name": "SpringBatchDemoMinimumFile",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "tasbetcFile",
+							"type": "file",
+							"src": "/C:/programs/github-projects/legendary-fiesta/src/main/resources/min_all_tas_betc.csv"
+						}
+					]
+				},
+				"url": "http://localhost:8081/springbatchdemo/launchFileUpload"
+			},
+			"response": []
+		},
+		{
+			"name": "SpringBatchDemoXLargeFile",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "tasbetcFile",
+							"type": "file",
+							"src": "/C:/programs/github-projects/spring-batch-excel/src/main/resources/all_tas_betc.csv"
+						}
+					]
+				},
+				"url": "http://localhost:8081/springbatchdemo/launchFileUpload"
+			},
+			"response": []
+		},
+		{
+			"name": "SpringBatchDemoErrorValidationFile",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "tasbetcFile",
+							"type": "file",
+							"src": "/C:/programs/github-projects/legendary-fiesta/src/main/resources/error_validation_all_tas_betc.csv"
+						}
+					]
+				},
+				"url": "http://localhost:8081/springbatchdemo/launchFileUpload"
+			},
+			"response": []
+		}
+	]
+}

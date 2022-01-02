@@ -1,7 +1,11 @@
 file:
-  csv:
-    headers: componentTasSP,componentTasATA,componentTasAID,componentTasBPOA,componentTasEPOA,componentTasA,componentTasMain,componentTasSub,adminBureau,gwaTas,gwaTasName,agencyName,betc,betcName,effectiveDate,suspendDate,credit,adjustmentBetc,starTas,starDeptReg,starDeptXfr,starMainAccount,transactionType,accountType,accountTypeDescription,fundType,fundTypeDescription,blankComma
-  root-directory: /temp/upload-folder
+  upload:
+    job:
+      beginningLinesToSkip: 2
+      chunkSize: 25
+      csvFileHeaders: componentTasSP,componentTasATA,componentTasAID,componentTasBPOA,componentTasEPOA,componentTasA,componentTasMain,componentTasSub,adminBureau,gwaTas,gwaTasName,agencyName,betc,betcName,effectiveDate,suspendDate,credit,adjustmentBetc,starTas,starDeptReg,starDeptXfr,starMainAccount,transactionType,accountType,accountTypeDescription,fundType,fundTypeDescription,blankComma
+      fileUploadRootDirectory: /temp/upload-folder
+      skipLimit: 2
 management:
   endpoint:
     flyway:
@@ -19,9 +23,6 @@ spring:
     initialize-schema: never
     job:
       enabled: false
-    chunkSize: 25
-    skip-limit: 2
-    lines-to-skip: 2
   datasource:
     driver-class-name: org.h2.Driver
     platform: "h2"
