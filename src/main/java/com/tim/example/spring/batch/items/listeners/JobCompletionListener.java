@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.listener.JobExecutionListenerSupport;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,9 @@ import org.springframework.stereotype.Component;
 public class JobCompletionListener extends JobExecutionListenerSupport {
 
     private static final String QRY_GET_STATUS_EXIT_MSG = "SELECT READ_COUNT, EXIT_CODE, STATUS FROM " +
-            "BATCH_STEP_EXECUTION WHERE JOB_EXECUTION_ID=";
+            "%sSTEP_EXECUTION WHERE JOB_EXECUTION_ID="; //BATCH_STEP_EXECUTION
+
+    private final String postgresqlSchemaPrefix;
 
     private final FileUploadJobHeaderService fileUploadJobHeaderService;
 
@@ -23,8 +26,10 @@ public class JobCompletionListener extends JobExecutionListenerSupport {
 
     @Autowired
     public JobCompletionListener(
+            @Value("${spring.batch.table-prefix:BATCH_}") final String postgresqlSchemaPrefix,
             final FileUploadJobHeaderService fileUploadJobHeaderService,
             final JdbcTemplate jdbcTemplate) {
+        this.postgresqlSchemaPrefix = postgresqlSchemaPrefix;
         this.fileUploadJobHeaderService = fileUploadJobHeaderService;
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -41,7 +46,7 @@ public class JobCompletionListener extends JobExecutionListenerSupport {
 
         if(fileUploadJobHeader != null){
             /* Find the status of the Spring Batch Job */
-            jdbcTemplate.query(QRY_GET_STATUS_EXIT_MSG
+            jdbcTemplate.query(String.format(QRY_GET_STATUS_EXIT_MSG, postgresqlSchemaPrefix).toString()
                             + executionJobId,
                     (rs, row) -> FileUploadJobHeader.builder().readCount(rs.getInt(1))
                             .exitCode(rs.getString(2)).status(rs.getString(3)).build()

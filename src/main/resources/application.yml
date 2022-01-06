@@ -4,6 +4,7 @@ file:
       beginningLinesToSkip: 2
       chunkSize: 25
       csvFileHeaders: componentTasSP,componentTasATA,componentTasAID,componentTasBPOA,componentTasEPOA,componentTasA,componentTasMain,componentTasSub,adminBureau,gwaTas,gwaTasName,agencyName,betc,betcName,effectiveDate,suspendDate,credit,adjustmentBetc,starTas,starDeptReg,starDeptXfr,starMainAccount,transactionType,accountType,accountTypeDescription,fundType,fundTypeDescription,blankComma
+      cronSchedule: "*/60 * * * * *"
       fileUploadRootDirectory: /temp/upload-folder
       skipLimit: 2
 management:
@@ -30,7 +31,7 @@ spring:
     username: sa
   flyway:
     baselineOnMigrate: true
-    baselineDescription : "FLYWAY-BASELINE"
+    baselineDescription: "FLYWAY-BASELINE"
     enabled: true
     ignoreMissingMigrations: true
     locations: "classpath:db/migration/flyway/h2/common,classpath:db/migration/flyway/h2/bootable-data"
@@ -61,6 +62,8 @@ spring:
 spring:
   profiles: postgresql-profile
   _comment: "This will be a Docker PostgreSQL Database"
+  batch:
+    table-prefix: spring_batch_demo.BATCH_
   datasource:
     driver-class-name: "org.postgresql.Driver"
     url: "jdbc:postgresql://localhost:8085/spring_batch_demo_db"
@@ -69,9 +72,12 @@ spring:
     platform: "postgresql"
     _comment: "I hate Spring Boot you can't setup your own Datasource Config because it creates this Hikari datasource"
   flyway:
+    create-schemas: false
+    default-schema: spring_batch_demo
     locations: "classpath:db/migration/flyway/postgresql/common,classpath:db/migration/flyway/postgresql/bootable-data"
     mixed: true
     password: "mysecret"
+    schemas: spring_batch_demo
     url: "jdbc:postgresql://localhost:8085/spring_batch_demo_db"
     user: "DB_OWNER_USER"
   jpa:
@@ -80,13 +86,16 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQL95Dialect
     properties:
       hibernate:
+        default_schema: spring_batch_demo
         dialect: "org.hibernate.dialect.PostgreSQL95Dialect"
+        format_sql: true
         jdbc:
           lob:
             non_contextual_creation: true
         temp:
           use_jdbc_metadata_defaults: false
     open-in-view: true
+    show-sql: true
 
 ---
 spring:

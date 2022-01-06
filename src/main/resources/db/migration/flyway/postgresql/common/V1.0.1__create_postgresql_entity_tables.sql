@@ -1,4 +1,5 @@
--- CREATE SCHEMA EMPLOYEES_DB  AUTHORIZATION sa;
+    SET search_path = spring_batch_demo;
+    SET SCHEMA 'spring_batch_demo';
 
     DROP TABLE IF EXISTS TAS_BETC;
     -- Drop the TASBETC Sequence if it exists

@@ -1,3 +1,6 @@
+SET search_path = spring_batch_demo;
+SET SCHEMA 'spring_batch_demo';
+
 CREATE TABLE BATCH_JOB_INSTANCE  (
 	JOB_INSTANCE_ID BIGINT  NOT NULL PRIMARY KEY ,
 	VERSION BIGINT ,
