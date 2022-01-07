@@ -6,12 +6,8 @@ import com.tim.example.spring.batch.service.FileUploadJobHeaderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.listener.JobExecutionListenerSupport;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 
-@Component
 @Slf4j
 public class JobCompletionListener extends JobExecutionListenerSupport {
 
@@ -24,9 +20,8 @@ public class JobCompletionListener extends JobExecutionListenerSupport {
 
     private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
     public JobCompletionListener(
-            @Value("${spring.batch.table-prefix:BATCH_}") final String postgresqlSchemaPrefix,
+            final String postgresqlSchemaPrefix,
             final FileUploadJobHeaderService fileUploadJobHeaderService,
             final JdbcTemplate jdbcTemplate) {
         this.postgresqlSchemaPrefix = postgresqlSchemaPrefix;
@@ -42,9 +37,9 @@ public class JobCompletionListener extends JobExecutionListenerSupport {
         Long executionJobId = jobExecution.getJobId();
         FileUploadJobHeader fileUploadJobHeader = loadFileUploadJobHeader(
                 Long.valueOf(jobExecution.getJobParameters().getString(Constants.PARAMETERS_JOB_HEADER_ID))
-        ,executionJobId);
+                , executionJobId);
 
-        if(fileUploadJobHeader != null){
+        if (fileUploadJobHeader != null) {
             /* Find the status of the Spring Batch Job */
             jdbcTemplate.query(String.format(QRY_GET_STATUS_EXIT_MSG, postgresqlSchemaPrefix).toString()
                             + executionJobId,

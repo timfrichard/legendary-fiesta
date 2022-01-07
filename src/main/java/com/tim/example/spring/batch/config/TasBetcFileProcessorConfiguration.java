@@ -10,12 +10,14 @@ import com.tim.example.spring.batch.items.writer.TasBetcItemWriter;
 import com.tim.example.spring.batch.model.dtos.TasBetcDTO;
 import com.tim.example.spring.batch.model.entities.TasBetc;
 import com.tim.example.spring.batch.properties.FileUploadJobProperties;
+import com.tim.example.spring.batch.service.FileUploadJobHeaderService;
 import com.tim.example.spring.batch.service.ProcessingErrorService;
 import com.tim.example.spring.batch.service.TasBetcService;
 import com.tim.example.spring.batch.service.storage.StorageService;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
@@ -28,6 +30,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidatorFactory;
@@ -126,7 +129,7 @@ public class TasBetcFileProcessorConfiguration {
     public TasBetcItemProcessor tasBetcItemProcessor(final TasBetcService tasBetcService,
                                                      final ValidatorFactory validator,
                                                      final @Value("#{jobParameters['" + Constants.PARAMETERS_JOB_HEADER_ID + "']}")
-                                                                 Long fileUploadJobHeaderId) {
+                                                             Long fileUploadJobHeaderId) {
         return new TasBetcItemProcessor(tasBetcService, validator);
     }
 
@@ -166,5 +169,15 @@ public class TasBetcFileProcessorConfiguration {
             final @Value("#{jobParameters['" + Constants.PARAMETERS_JOB_HEADER_ID + "']}") Long fileUploadJobHeaderId,
             final ProcessingErrorService processingErrorService) {
         return new FileUploadProcessorErrorListener(fileUploadJobHeaderId, processingErrorService);
+    }
+
+    @Bean
+    @JobScope
+    public JobCompletionListener jobCompletionListener(
+            @Value("${spring.batch.table-prefix:BATCH_}") final String postgresqlSchemaPrefix,
+            final FileUploadJobHeaderService fileUploadJobHeaderService,
+            final JdbcTemplate jdbcTemplate,
+            final @Value("#{jobParameters['" + Constants.PARAMETERS_JOB_HEADER_ID + "']}") Long fileUploadJobHeaderId) {
+        return new JobCompletionListener(postgresqlSchemaPrefix, fileUploadJobHeaderService, jdbcTemplate);
     }
 }
