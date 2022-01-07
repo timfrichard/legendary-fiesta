@@ -1,0 +1,18 @@
+version: '3'
+services:
+  spring-batch-demo:
+    container_name: spring-batch-demo-container
+    environment:
+      - JAVA_OPTS=
+        -Dfile.upload.job.fileUploadRootDirectory=/app
+        -Dspring.profiles.active=postgresql-profile
+        -Dspring.datasource.url=jdbc:postgresql://192.168.2.185:8085/spring_batch_demo_db
+        -Dspring.flyway.url=jdbc:postgresql://192.168.2.185:8085/spring_batch_demo_db
+    image: com.tim.example-spring-batch-excel:0.0.1-SNAPSHOT
+#    network_mode: host
+    ports:
+      - ${myport}
+    restart: always
+    volumes:
+      - /temp/upload-folder:/app
+
