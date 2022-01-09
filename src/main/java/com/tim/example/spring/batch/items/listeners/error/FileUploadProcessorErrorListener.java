@@ -5,6 +5,7 @@ import com.tim.example.spring.batch.model.entities.FileUploadJobHeader;
 import com.tim.example.spring.batch.model.entities.ProcessingError;
 import com.tim.example.spring.batch.model.entities.StepTypeError;
 import com.tim.example.spring.batch.model.entities.TasBetc;
+import com.tim.example.spring.batch.service.FileUploadJobHeaderService;
 import com.tim.example.spring.batch.service.ProcessingErrorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.ItemProcessListener;
@@ -19,11 +20,15 @@ public class FileUploadProcessorErrorListener implements ItemProcessListener<Tas
 
     private final Long fileUploadJobHeaderId;
 
+    private final FileUploadJobHeaderService fileUploadJobHeaderService;
+
     private final ProcessingErrorService processingErrorService;
 
     public FileUploadProcessorErrorListener(final Long fileUploadJobHeaderId,
+                                            final FileUploadJobHeaderService fileUploadJobHeaderService,
                                             final ProcessingErrorService processingErrorService) {
         this.fileUploadJobHeaderId = fileUploadJobHeaderId;
+        this.fileUploadJobHeaderService = fileUploadJobHeaderService;
         this.processingErrorService = processingErrorService;
     }
 
@@ -40,6 +45,7 @@ public class FileUploadProcessorErrorListener implements ItemProcessListener<Tas
     /**
      * The transactional annotation is needed as a REQUIRES_NEW.
      * See:  https://docs.spring.io/spring-batch/docs/current/reference/html/common-patterns.html#loggingItemProcessingAndFailures
+     *
      * @param tasBetcDTO
      * @param exception
      */

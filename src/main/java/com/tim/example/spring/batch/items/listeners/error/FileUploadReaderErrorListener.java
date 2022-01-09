@@ -4,6 +4,7 @@ import com.tim.example.spring.batch.model.dtos.TasBetcDTO;
 import com.tim.example.spring.batch.model.entities.FileUploadJobHeader;
 import com.tim.example.spring.batch.model.entities.ProcessingError;
 import com.tim.example.spring.batch.model.entities.StepTypeError;
+import com.tim.example.spring.batch.service.FileUploadJobHeaderService;
 import com.tim.example.spring.batch.service.ProcessingErrorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.ItemReadListener;
@@ -17,11 +18,15 @@ public class FileUploadReaderErrorListener implements ItemReadListener<TasBetcDT
 
     private final Long fileUploadJobHeaderId;
 
+    private final FileUploadJobHeaderService fileUploadJobHeaderService;
+
     private final ProcessingErrorService processingErrorService;
 
     public FileUploadReaderErrorListener(final Long fileUploadJobHeaderId,
+                                         final FileUploadJobHeaderService fileUploadJobHeaderService,
                                          final ProcessingErrorService processingErrorService) {
         this.fileUploadJobHeaderId = fileUploadJobHeaderId;
+        this.fileUploadJobHeaderService = fileUploadJobHeaderService;
         this.processingErrorService = processingErrorService;
     }
 
@@ -44,8 +49,8 @@ public class FileUploadReaderErrorListener implements ItemReadListener<TasBetcDT
     @Transactional(Transactional.TxType.REQUIRES_NEW)
     public void onReadError(Exception e) {
 
-        final ProcessingError processingError = ProcessingError.builder().fileUploadJobHeader(FileUploadJobHeader
-                .builder().jobHeaderId(fileUploadJobHeaderId).build()).stepTypeError(StepTypeError.FILEUPLOADREADER)
+        final ProcessingError processingError = ProcessingError.builder().fileUploadJobHeader(fileUploadJobHeaderService
+                        .findById(fileUploadJobHeaderId)).stepTypeError(StepTypeError.FILEUPLOADREADER)
                 .build();
 
         if (e instanceof IncorrectTokenCountException) {

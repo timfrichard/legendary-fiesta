@@ -159,16 +159,18 @@ public class TasBetcFileProcessorConfiguration {
     @StepScope
     public FileUploadReaderErrorListener fileUploadReaderErrorListener(
             final @Value("#{jobParameters['" + Constants.PARAMETERS_JOB_HEADER_ID + "']}") Long fileUploadJobHeaderId,
-            final ProcessingErrorService processingErrorService) {
-        return new FileUploadReaderErrorListener(fileUploadJobHeaderId, processingErrorService);
+            final ProcessingErrorService processingErrorService,
+            final FileUploadJobHeaderService fileUploadJobHeaderService) {
+        return new FileUploadReaderErrorListener(fileUploadJobHeaderId, fileUploadJobHeaderService, processingErrorService);
     }
 
     @Bean
     @StepScope
     public FileUploadProcessorErrorListener fileUploadProcessorErrorListener(
             final @Value("#{jobParameters['" + Constants.PARAMETERS_JOB_HEADER_ID + "']}") Long fileUploadJobHeaderId,
-            final ProcessingErrorService processingErrorService) {
-        return new FileUploadProcessorErrorListener(fileUploadJobHeaderId, processingErrorService);
+            final ProcessingErrorService processingErrorService,
+            final FileUploadJobHeaderService fileUploadJobHeaderService) {
+        return new FileUploadProcessorErrorListener(fileUploadJobHeaderId, fileUploadJobHeaderService, processingErrorService);
     }
 
     @Bean
