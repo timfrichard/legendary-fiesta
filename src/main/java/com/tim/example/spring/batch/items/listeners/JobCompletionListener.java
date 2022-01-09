@@ -39,27 +39,32 @@ public class JobCompletionListener extends JobExecutionListenerSupport {
                 Long.valueOf(jobExecution.getJobParameters().getString(Constants.PARAMETERS_JOB_HEADER_ID))
                 , executionJobId);
 
-        if (fileUploadJobHeader != null) {
-            /* Find the status of the Spring Batch Job */
-            jdbcTemplate.query(String.format(QRY_GET_STATUS_EXIT_MSG, postgresqlSchemaPrefix).toString()
-                            + executionJobId,
-                    (rs, row) -> FileUploadJobHeader.builder().readCount(rs.getInt(1))
-                            .exitCode(rs.getString(2)).status(rs.getString(3)).build()
-            ).forEach(transferFileUploadJobHeader -> { /* There should only be one */
-                Integer readCount = transferFileUploadJobHeader.getReadCount();
-                log.info("ReadCount: " + readCount);
-                fileUploadJobHeader.setReadCount(readCount);
+        try {
+            if (fileUploadJobHeader != null) {
+                /* Find the status of the Spring Batch Job */
+                jdbcTemplate.query(String.format(QRY_GET_STATUS_EXIT_MSG, postgresqlSchemaPrefix).toString()
+                                + executionJobId,
+                        (rs, row) -> FileUploadJobHeader.builder().readCount(rs.getInt(1))
+                                .exitCode(rs.getString(2)).status(rs.getString(3)).build()
+                ).forEach(transferFileUploadJobHeader -> { /* There should only be one */
+                    Integer readCount = transferFileUploadJobHeader.getReadCount();
+                    log.info("ReadCount: " + readCount);
+                    fileUploadJobHeader.setReadCount(readCount);
 
-                String exitCode = transferFileUploadJobHeader.getExitCode();
-                log.info("ExitCode: " + exitCode);
-                fileUploadJobHeader.setExitCode(exitCode);
+                    String exitCode = transferFileUploadJobHeader.getExitCode();
+                    log.info("ExitCode: " + exitCode);
+                    fileUploadJobHeader.setExitCode(exitCode);
 
-                String status = transferFileUploadJobHeader.getStatus();
-                log.info("Status: " + status);
-                fileUploadJobHeader.setStatus(status);
-            });
+                    String status = transferFileUploadJobHeader.getStatus();
+                    log.info("Status: " + status);
+                    fileUploadJobHeader.setStatus(status);
+                });
 
-            fileUploadJobHeaderService.saveFileUploadJobHeader(fileUploadJobHeader);
+                fileUploadJobHeaderService.saveFileUploadJobHeader(fileUploadJobHeader);
+            }
+        } catch (Exception e) {
+            log.error("Error Dummy!");
+            e.printStackTrace();
         }
     }
 
