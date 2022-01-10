@@ -74,6 +74,17 @@
             <artifactId>guava</artifactId>
             <version>${google.collections.version}</version>
         </dependency>
+        <!-- ShedLock dependencies -->
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-spring</artifactId>
+            <version>${shedlock.spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-provider-jdbc-template</artifactId>
+            <version>${shedlock.provider}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -92,6 +103,8 @@
         <lombok.version>1.18.18</lombok.version>
         <maven.compiler.plugin.ver>3.8.1</maven.compiler.plugin.ver>
         <org.mapstruct.version>1.4.1.Final</org.mapstruct.version>
+        <shedlock.spring.version>2.2.0</shedlock.spring.version>
+        <shedlock.provider>2.1.0</shedlock.provider>
     </properties>
 
     <build>
