@@ -6,6 +6,7 @@ import com.tim.example.spring.batch.model.entities.FileUploadJobHeader;
 import com.tim.example.spring.batch.service.FileUploadJobHeaderService;
 import com.tim.example.spring.batch.service.storage.StorageService;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.core.SchedulerLock;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
@@ -44,6 +45,7 @@ public class FileProcessorScheduler {
     }
 
     @Scheduled(cron="${file.upload.job.cronSchedule}")
+    @SchedulerLock(name = "FileProcessorScheduler_launchFileUploadJob")// ,lockAtLeastForString = "PT5M", lockAtMostForString = "PT14M"
     public void launchFileUploadJob() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException,
             JobParametersInvalidException, JobRestartException {
         log.info("Start - launchFileUploadJob()");
