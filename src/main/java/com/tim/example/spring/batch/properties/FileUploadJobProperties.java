@@ -17,9 +17,13 @@ public class FileUploadJobProperties {
 
     private Integer chunkSize;
 
+    private String cronSchedule;
+
     private String[] csvFileHeaders;
 
     private Path fileUploadRootDirectory;
+
+    private Integer intervalInSeconds;
 
     private Integer skipLimit;
 }
