@@ -43,7 +43,7 @@ public class FileProcessorScheduler {
         this.tasBetcFlatFileReader = tasBetcFlatFileReader;
     }
 
-//    @Scheduled(cron="${file.upload.job.cronSchedule}")
+    @Scheduled(cron="${file.upload.job.cronSchedule}")
     public void launchFileUploadJob() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException,
             JobParametersInvalidException, JobRestartException {
         log.info("Start - launchFileUploadJob()");
