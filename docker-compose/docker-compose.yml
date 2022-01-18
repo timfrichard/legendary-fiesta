@@ -1,13 +1,12 @@
 version: '3'
 services:
   spring-batch-demo-server1:
-    container_name: springbatch-demo-server1-container
+    container_name: springbatch-demo-shedlock-server1-container
     environment:
       - JAVA_OPTS=
         -Dfile.upload.job.fileUploadRootDirectory=/app
         -Dspring.profiles.active=postgresql-profile
-        -Dspring.datasource.url=jdbc:postgresql://192.168.111.247:8085/spring_batch_demo_db
-        -Dspring.flyway.url=jdbc:postgresql://192.168.111.247:8085/spring_batch_demo_db
+        -Dfile.upload.job.postgreSQLDatabaseIPAddress=192.168.2.185
         -Dserver.port=8081
     image: com.tim.example-spring-batch-excel:0.0.1-SNAPSHOT
     ports:
@@ -16,13 +15,12 @@ services:
     volumes:
       - /temp/upload-folder:/app
   spring-batch-demo-server2:
-    container_name: springbatch-demo-server2-container
+    container_name: springbatch-demo-shedlock-server2-container
     environment:
       - JAVA_OPTS=
         -Dfile.upload.job.fileUploadRootDirectory=/app
         -Dspring.profiles.active=postgresql-profile
-        -Dspring.datasource.url=jdbc:postgresql://192.168.111.247:8085/spring_batch_demo_db
-        -Dspring.flyway.url=jdbc:postgresql://192.168.111.247:8085/spring_batch_demo_db
+        -Dfile.upload.job.postgreSQLDatabaseIPAddress=192.168.2.185
         -Dserver.port=8082
     image: com.tim.example-spring-batch-excel:0.0.1-SNAPSHOT
     ports:
