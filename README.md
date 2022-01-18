@@ -25,4 +25,5 @@ SP - ATA - AID - BPOA - EPOA - A - MAIN - SUB - Admin Bureau - GWA TAS - Agency 
 ### Docker Composer Up Command
 ```
 docker-compose up -d
+docker-compose -p "spring-batch-demo-XXXXXX" up -d
 ```

@@ -8,6 +8,7 @@ file:
       fileUploadRootDirectory: /temp/upload-folder
       intervalInSeconds: 60
       skipLimit: 2
+      postgreSQLDatabaseIPAddress: 192.168.2.185
 management:
   endpoint:
     flyway:
@@ -68,7 +69,7 @@ spring:
     table-prefix: spring_batch_demo.BATCH_
   datasource:
     driver-class-name: "org.postgresql.Driver"
-    url: "jdbc:postgresql://localhost:8085/spring_batch_demo_db"
+    url: "jdbc:postgresql://${file.upload.job.postgreSQLDatabaseIPAddress}:8085/spring_batch_demo_db"
     username: "SPRINGBATCH_APP_USER"
     password: "mynonsecretpassw0rd"
     platform: "postgresql"
@@ -80,7 +81,7 @@ spring:
     mixed: true
     password: "mysecret"
     schemas: spring_batch_demo
-    url: "jdbc:postgresql://localhost:8085/spring_batch_demo_db"
+    url: "jdbc:postgresql://${file.upload.job.postgreSQLDatabaseIPAddress}:8085/spring_batch_demo_db"
     user: "DB_OWNER_USER"
   jpa:
     hibernate:
