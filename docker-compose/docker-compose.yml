@@ -6,8 +6,7 @@ services:
       - JAVA_OPTS=
         -Dfile.upload.job.fileUploadRootDirectory=/app
         -Dspring.profiles.active=postgresql-profile
-        -Dspring.datasource.url=jdbc:postgresql://192.168.2.185:8085/spring_batch_demo_db
-        -Dspring.flyway.url=jdbc:postgresql://192.168.2.185:8085/spring_batch_demo_db
+        -Dfile.upload.job.postgreSQLDatabaseIPAddress=192.168.2.185
         -Dserver.port=8081
     image: com.tim.example-spring-batch-excel:0.0.1-SNAPSHOT
     ports:
