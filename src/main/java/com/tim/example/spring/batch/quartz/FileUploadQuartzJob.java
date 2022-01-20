@@ -8,6 +8,7 @@ import com.tim.example.spring.batch.service.storage.StorageService;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.batch.core.Job;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Component;
 @Setter
 @Component
 @Slf4j
+@DisallowConcurrentExecution
 public class FileUploadQuartzJob extends QuartzJobBean {
 
     private String jobName;
