@@ -1,0 +1,51 @@
+file:
+  upload:
+    job:
+      beginningLinesToSkip: 2
+      chunkSize: 25
+      csvFileHeaders: componentTasSP,componentTasATA,componentTasAID,componentTasBPOA,componentTasEPOA,componentTasA,componentTasMain,componentTasSub,adminBureau,gwaTas,gwaTasName,agencyName,betc,betcName,effectiveDate,suspendDate,credit,adjustmentBetc,starTas,starDeptReg,starDeptXfr,starMainAccount,transactionType,accountType,accountTypeDescription,fundType,fundTypeDescription,blankComma
+      cronSchedule: "*/60 * * * * *"
+      fileUploadRootDirectory: src/test/resources/input
+      intervalInSeconds: 60
+      skipLimit: 2
+      postgreSQLDatabaseIPAddress: 192.168.2.185
+spring:
+  batch:
+    initialize-schema: never
+    job:
+      enabled: false
+  datasource:
+    driver-class-name: "org.h2.Driver"
+    password:
+    platform: "h2"
+    username: sa
+  flyway:
+    baselineOnMigrate: true
+    baselineDescription: "FLYWAY-BASELINE"
+    enabled: true
+    ignoreMissingMigrations: true
+    locations: classpath:db/migration/flyway/h2/common
+    outOfOrder: false
+    validateOnMigrate: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: none
+    open-in-view: true
+  profiles:
+    active: integration-test
+org:
+  quartz:
+    scheduler:
+      instanceId: AUTO
+      instanceName: spring-boot-quartz
+    threadPool:
+      class: org.quartz.simpl.SimpleThreadPool
+      threadCount: 25
+      threadPriority: 5
+    jobStore:
+      misfireThreshold: 1000
+      class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
+      driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+      useProperties: true
+      tablePrefix: QRTZ_

@@ -17,6 +17,21 @@ management:
     web:
       exposure:
         include: "*"
+org:
+  quartz:
+    scheduler:
+      instanceId: AUTO
+      instanceName: spring-boot-quartz
+    threadPool:
+      class: org.quartz.simpl.SimpleThreadPool
+      threadCount: 25
+      threadPriority: 5
+    jobStore:
+      misfireThreshold: 1000
+      class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
+      driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+      useProperties: true
+      tablePrefix: QRTZ_
 server:
   port: 8081
   servlet:

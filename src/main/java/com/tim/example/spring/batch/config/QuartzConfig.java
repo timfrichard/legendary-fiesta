@@ -12,17 +12,14 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor;
-import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.util.Properties;
 
 @Configuration
 public class QuartzConfig {
@@ -66,7 +63,6 @@ public class QuartzConfig {
                                                      final SpringBeanJobFactory springBeanJobFactory) throws IOException {
         SchedulerFactoryBean scheduler = new SchedulerFactoryBean();
         scheduler.setTriggers(jobOneTrigger);
-        scheduler.setQuartzProperties(quartzProperties());
         scheduler.setJobDetails(jobOneDetail);
         scheduler.setDataSource(dataSource);
         scheduler.setJobFactory(springBeanJobFactory);
@@ -80,14 +76,6 @@ public class QuartzConfig {
 
         jobFactory.setApplicationContext(applicationContext);
         return jobFactory;
-    }
-
-    @Bean
-    public Properties quartzProperties() throws IOException {
-        PropertiesFactoryBean propertiesFactoryBean = new PropertiesFactoryBean();
-        propertiesFactoryBean.setLocation(new ClassPathResource("/quartz.properties"));
-        propertiesFactoryBean.afterPropertiesSet();
-        return propertiesFactoryBean.getObject();
     }
 
 }
