@@ -17,34 +17,21 @@ management:
     web:
       exposure:
         include: "*"
-org:
-  quartz:
-    scheduler:
-      instanceId: AUTO
-      instanceName: spring-boot-quartz
-    threadPool:
-      class: org.quartz.simpl.SimpleThreadPool
-      threadCount: 25
-      threadPriority: 5
-    jobStore:
-      misfireThreshold: 1000
-      class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
-      driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
-      useProperties: true
-      tablePrefix: QRTZ_
 server:
   port: 8081
   servlet:
     context-path: /springbatchdemo
 spring:
   batch:
-    initialize-schema: never
+    jdbc:
+      initialize-schema: never
+      table-prefix: GINV_BATCH.BATCH_
     job:
       enabled: false
   datasource:
     driver-class-name: org.h2.Driver
     platform: "h2"
-    url: jdbc:h2:mem:SPRING_BATCH_DEMO;DB_CLOSE_DELAY=-1
+    url: jdbc:h2:mem:GINV_BATCH;DB_CLOSE_ON_EXIT=FALSE
     username: sa
   flyway:
     baselineOnMigrate: true
@@ -58,6 +45,28 @@ spring:
     console:
       enabled: true
       path: /myh2
+  quartz:
+    auto-startup: true
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: never
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceId: AUTO #Default hostname and timestamp generate instance ID, which can be any string, but must be the only corresponding qrtz_scheduler_state INSTANCE_NAME field for all dispatchers
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 25
+            threadPriority: 5
+          jobStore:
+            misfireThreshold: 1000 #The number of milliseconds the dispatcher will "tolerate" a Trigger to pass its next startup time before being considered a "fire".The default value (if you do not enter this property in the configuration) is 60000 (60 seconds).
+#            class: org.quartz.impl.jdbcjobstore.JobStoreTX #Persistence Configuration/
+            clusterCheckinInterval: 5000 #Set the frequency (in milliseconds) of this instance'checkin'* with other instances of the cluster.Affects the speed of detecting failed instances.
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate  #We only make database-specific proxies for databases
+            isClustered: true #Turn on Clustering
+            tablePrefix: GINV_BATCH.QRTZ_ #Database Table Prefix
+            useProperties: false #Indicates that JDBC JobStore stores all values in JobDataMaps as strings, so more complex objects can be stored as name-value pairs rather than serialized in BLOB columns.In the long run, this is safer because you avoid serializing non-String classes to BLOB class versions.
   servlet:
     multipart:
       max-file-size: 250MB
@@ -71,7 +80,7 @@ spring:
     open-in-view: true
     properties:
       hibernate:
-        default_schema: PUBLIC
+        default_schema: GINV_BATCH
   main:
     allow-bean-definition-overriding: true
 

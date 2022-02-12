@@ -64,7 +64,7 @@ public class QuartzConfig {
         SchedulerFactoryBean scheduler = new SchedulerFactoryBean();
         scheduler.setTriggers(jobOneTrigger);
         scheduler.setJobDetails(jobOneDetail);
-        scheduler.setDataSource(dataSource);
+//        scheduler.setDataSource(dataSource);
         scheduler.setJobFactory(springBeanJobFactory);
 
         return scheduler;

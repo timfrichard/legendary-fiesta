@@ -12,7 +12,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public class JobCompletionListener extends JobExecutionListenerSupport {
 
     private static final String QRY_GET_STATUS_EXIT_MSG = "SELECT READ_COUNT, EXIT_CODE, STATUS FROM " +
-            "%sSTEP_EXECUTION WHERE JOB_EXECUTION_ID="; //BATCH_STEP_EXECUTION
+            "GINV_BATCH.BATCH_STEP_EXECUTION WHERE JOB_EXECUTION_ID="; //BATCH_STEP_EXECUTION
 
     private final String postgresqlSchemaPrefix;
 
@@ -41,7 +41,7 @@ public class JobCompletionListener extends JobExecutionListenerSupport {
 
         if (fileUploadJobHeader != null) {
             /* Find the status of the Spring Batch Job */
-            jdbcTemplate.query(String.format(QRY_GET_STATUS_EXIT_MSG, postgresqlSchemaPrefix).toString()
+            jdbcTemplate.query(QRY_GET_STATUS_EXIT_MSG
                             + executionJobId,
                     (rs, row) -> FileUploadJobHeader.builder().readCount(rs.getInt(1))
                             .exitCode(rs.getString(2)).status(rs.getString(3)).build()
