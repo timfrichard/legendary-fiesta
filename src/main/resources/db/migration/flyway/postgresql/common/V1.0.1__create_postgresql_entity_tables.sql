@@ -1,5 +1,5 @@
-    SET search_path = spring_batch_demo;
-    SET SCHEMA 'spring_batch_demo';
+    SET search_path = ginv_batch;
+    SET SCHEMA 'ginv_batch';
 
     DROP TABLE IF EXISTS TAS_BETC;
     -- Drop the TASBETC Sequence if it exists

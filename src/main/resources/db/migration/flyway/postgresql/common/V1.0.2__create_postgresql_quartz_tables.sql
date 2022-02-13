@@ -3,8 +3,8 @@
 -- In your Quartz properties file, you'll need to set
 -- org.quartz.jobStore.driverDelegateClass = org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
 
-SET search_path = spring_batch_demo;
-SET SCHEMA 'spring_batch_demo';
+SET search_path = ginv_batch;
+SET SCHEMA 'ginv_batch';
 
 
 DROP TABLE IF EXISTS QRTZ_FIRED_TRIGGERS;

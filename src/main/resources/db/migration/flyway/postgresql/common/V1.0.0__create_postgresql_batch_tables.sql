@@ -1,5 +1,5 @@
-SET search_path = spring_batch_demo;
-SET SCHEMA 'spring_batch_demo';
+SET search_path = ginv_batch;
+SET SCHEMA 'ginv_batch';
 
 CREATE TABLE BATCH_JOB_INSTANCE  (
 	JOB_INSTANCE_ID BIGINT  NOT NULL PRIMARY KEY ,
